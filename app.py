@@ -80,6 +80,11 @@ def init_db():
 
 init_db()
 
+# السطرين دول هم اللي بيخلي الموقع يفتح صفحة التسجيل لوحده أول ما تفتح الرابط السادة
+@app.route('/')
+def home():
+    return redirect(url_for('register_page'))
+
 @app.route('/register', methods=['GET', 'POST'])
 def register_page():
     error = None
@@ -308,8 +313,6 @@ def save_purchase():
 def logout():
     session.clear()
     return redirect(url_for('login_page'))
-
-import os
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
