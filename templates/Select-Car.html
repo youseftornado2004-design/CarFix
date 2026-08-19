@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختيار السيارة - متجر قطع الغيار</title>
+    <style>
+        body {
+            font-family: Tahoma, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            text-align: right;
+        }
+        .modal-content textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            resize: none;
+        }
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .support-btn {
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .support-btn:hover {
+            background-color: #e68a00;
+        }
+        .logout-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+        }
+        .car-box {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 400px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        #car-alert {
+            display: none;
+            background-color: #ffc107;
+            color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+            border: 1px solid #e0a800;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <h1>متجر قطع الغيار</h1>
+        <div class="nav-buttons">
+            <button class="support-btn" onclick="openSupportModal()">مركز الدعم والشكاوى</button>
+            <a href="/logout" class="logout-btn">تسجيل الخروج</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="car-box">
+            <h2>اختر سيارتك وسنة الصنع</h2>
+            
+            <div id="car-alert"></div>
+
+            <form action="/product" method="GET" onsubmit="return validateCarSelection(event)">
+                <div class="form-group">
+                    <label>اختر السيارة (الموديل وسنة الصنع):</label>
+                    <select id="carID" name="CarID" required>
+                        <option value="">-- اختر السيارة المتاحة --</option>
+                        {% for car in cars %}
+                            <option value="{{ car.CarID }}">{{ car.ModelName }} - سنة {{ car.Year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit">الانتقال لعرض قطع الغيار</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة الشكاوى المرتبطة بقاعدة البيانات بالكامل -->
+    <div class="modal-overlay" id="supportModal">
+        <div class="modal-content">
+            <h3>مركز الدعم والشكاوى</h3>
+            <form action="/submit-complaint" method="POST">
+                <textarea name="message" placeholder="اكتب شكواك أو استفسارك هنا..." required></textarea>
+                <button type="submit" style="background-color: #28a745; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; margin-bottom: 5px;">إرسال الشكوى</button>
+                <button type="button" onclick="closeSupportModal()" style="background-color: #ccc; color: #333; border: none; padding: 8px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer;">إلغاء</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function validateCarSelection(event) {
+            const carID = document.getElementById('carID').value;
+            const alertBox = document.getElementById('car-alert');
+
+            if (!carID) {
+                event.preventDefault();
+                alertBox.innerText = "يرجى اختيار السيارة وسنة الصنع!";
+                alertBox.style.display = 'block';
+                return false;
+            }
+            alertBox.style.display = 'none';
+            return true;
+        }
+
+        function openSupportModal() {
+            document.getElementById('supportModal').style.display = 'flex';
+        }
+
+        function closeSupportModal() {
+            document.getElementById('supportModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

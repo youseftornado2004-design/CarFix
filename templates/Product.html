@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قطع الغيار المتاحة - متجر قطع الغيار</title>
+    <style>
+        body {
+            font-family: Tahoma, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .back-btn {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .back-btn:hover {
+            background-color: #5a6268;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .header-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .product-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .product-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            background-color: #eee;
+        }
+        .product-info h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .product-info p {
+            color: #666;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+        .price {
+            color: #28a745;
+            font-weight: bold;
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        .buy-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            transition: background-color 0.2s;
+        }
+        .buy-btn:hover {
+            background-color: #0056b3;
+        }
+        .no-products {
+            text-align: center;
+            color: #777;
+            font-size: 18px;
+            grid-column: 1 / -1;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <h1>متجر قطع الغيار - عروض القطع</h1>
+        <div class="nav-buttons">
+            <a href="/select-car" class="back-btn">اختيار سيارة أخرى</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2 class="header-title">
+            {% if car_model %}
+                قطع الغيار المتوفرة لسيارة: {{ car_model }} (سنة {{ car_year }})
+            {% else %}
+                جميع قطع الغيار المتوفرة
+            {% endif %}
+        </h2>
+
+        <div class="products-grid">
+            {% if products %}
+                {% for product in products %}
+                    <div class="product-card">
+                        <div>
+                            {% if product.Image %}
+                                <img src="{{ url_for('static', filename='uploads/' + product.Image) }}" alt="{{ product.ProductName }}">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='uploads/default.png') }}" alt="صورة افتراضية">
+                            {% endif %}
+                            <div class="product-info">
+                                <h3>{{ product.ProductName }}</h3>
+                                <p>{{ product.Description }}</p>
+                                <p><strong>السيارة:</strong> {{ product.ModelName }} ({{ product.Year }})</p>
+                                <p><strong>المخزون المتاح:</strong> {{ product.Stock }} قطعة</p>
+                                <div class="price">{{ product.Price }} جنية</div>
+                            </div>
+                        </div>
+                        <button class="buy-btn" onclick="buyProduct({{ product.ProductID }}, {{ product.Price }})">شراء الآن</button>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-products">
+                    <p>عذراً، لا توجد قطع غيار متاحة لهذه السيارة حالياً.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function buyProduct(productId, price) {
+            if (confirm("هل أنت متأكد من رغبتك في إتمام عملية الشراء لهذه القطعة؟")) {
+                fetch('/save-purchase', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        total: price,
+                        items: [{ id: productId, quantity: 1 }]
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert("تمت عملية الشراء بنجاح! وسُجلت في طلبات المتجر.");
+                        location.reload();
+                    } else {
+                        alert("حدث خطأ أثناء إتمام الشراء، حاول مرة أخرى.");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("حدث خطأ في الاتصال بالخادم.");
+                });
+            }
+        }
+    </script>
+</body>
+</html>

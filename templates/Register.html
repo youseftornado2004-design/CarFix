@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب - متجر قطع الغيار</title>
+    <style>
+        body {
+            font-family: Tahoma, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 450px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        input, select {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .birth-date-group {
+            display: flex;
+            gap: 10px;
+        }
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        button[type="submit"]:hover {
+            background-color: #218838;
+        }
+        #alert-box, .server-error {
+            background-color: #ffc107;
+            color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+            border: 1px solid #e0a800;
+            font-size: 14px;
+        }
+        .server-error {
+            background-color: #ffdddd;
+            color: #d8000c;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h2>إنشاء حساب جديد</h2>
+        
+        <!-- تنبيه الأخطاء من الجافاسكريبت -->
+        <div id="alert-box" style="display: none;">يرجى ملء جميع الحقول المطلوبة بدقة!</div>
+
+        <!-- تنبيه الإيرور القادم من السيرفر (لو الإيميل مكرر) -->
+        {% if error %}
+            <div class="server-error">{{ error }}</div>
+        {% endif %}
+
+        <form action="/register" method="POST" onsubmit="return validateRegisterForm(event)">
+            <div class="form-group">
+                <label>الاسم الأول:</label>
+                <input type="text" id="firstName" name="FirstName" required>
+            </div>
+            
+            <div class="form-group">
+                <label>اسم العائلة:</label>
+                <input type="text" id="lastName" name="LastName" required>
+            </div>
+
+            <div class="form-group">
+                <label>تاريخ الميلاد:</label>
+                <div class="birth-date-group">
+                    <select id="birthDay" required>
+                        <option value="">اليوم</option>
+                        <script>
+                            for(let i=1; i<=31; i++) document.write(`<option value="${i}">${i}</option>`);
+                        </script>
+                    </select>
+                    <select id="birthMonth" required>
+                        <option value="">الشهر</option>
+                        <option value="1">يناير</option>
+                        <option value="2">فبراير</option>
+                        <option value="3">مارس</option>
+                        <option value="4">أبريل</option>
+                        <option value="5">مايو</option>
+                        <option value="6">يونيو</option>
+                        <option value="7">يوليو</option>
+                        <option value="8">أغسطس</option>
+                        <option value="9">سبتمبر</option>
+                        <option value="10">أكتوبر</option>
+                        <option value="11">نوفمبر</option>
+                        <option value="12">ديسمبر</option>
+                    </select>
+                    <select id="birthYear" required>
+                        <option value="">السنة</option>
+                        <script>
+                            for(let i=2026; i>=1950; i--) document.write(`<option value="${i}">${i}</option>`);
+                        </script>
+                    </select>
+                    <input type="hidden" id="BirthDate" name="BirthDate">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>الجنس:</label>
+                <select id="gender" name="Gender" required>
+                    <option value="">-- اختر الجنس --</option>
+                    <option value="Male">ذكر</option>
+                    <option value="Female">أنثى</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>رقم الهاتف:</label>
+                <input type="tel" id="phone" name="Phone" required>
+            </div>
+
+            <div class="form-group">
+                <label>البريد الإلكتروني:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label>كلمة المرور:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit">تأكيد إنشاء الحساب</button>
+        </form>
+    </div>
+
+    <script>
+        function validateRegisterForm(event) {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const day = document.getElementById('birthDay').value;
+            const month = document.getElementById('birthMonth').value;
+            const year = document.getElementById('birthYear').value;
+            const gender = document.getElementById('gender').value;
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const alertBox = document.getElementById('alert-box');
+
+            if (!firstName || !lastName || !day || !month || !year || !gender || !phone || !email || !password) {
+                event.preventDefault();
+                alertBox.style.display = 'block';
+                return false;
+            }
+
+            document.getElementById('BirthDate').value = `${year}-${month}-${day}`;
+            return true;
+        }
+    </script>
+</body>
+</html>
