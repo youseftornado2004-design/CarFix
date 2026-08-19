@@ -80,6 +80,15 @@ def init_db():
 
 init_db()
 
+# مسارات التحقق الخاصة بجوجل لضمان قبول الملكية فوريّاً من السيرفر
+@app.route('/google0738e7db4e3ca751.html')
+def google_verify_1():
+    return "google-site-verification: google0738e7db4e3ca751.html"
+
+@app.route('/googleuNnjjl8fAb4LnQsWDUJYTI-y3sv_kLdzQWJsIg0XC6Q.html')
+def google_verify_2():
+    return "google-site-verification: uNnjjl8fAb4LnQsWDUJYTI-y3sv_kLdzQWJsIg0XC6Q"
+
 # خلي الصفحة الرئيسية (/) تعرض صفحة التسجيل مباشرة عشان جوجل يشوف كود التحقق هناك
 @app.route('/', methods=['GET', 'POST'])
 def home():
