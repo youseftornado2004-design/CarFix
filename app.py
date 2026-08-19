@@ -80,13 +80,9 @@ def init_db():
 
 init_db()
 
-# السطرين دول هم اللي بيخلي الموقع يفتح صفحة التسجيل لوحده أول ما تفتح الرابط السادة
-@app.route('/')
+# خلي الصفحة الرئيسية (/) تعرض صفحة التسجيل مباشرة عشان جوجل يشوف كود التحقق هناك
+@app.route('/', methods=['GET', 'POST'])
 def home():
-    return redirect(url_for('register_page'))
-
-@app.route('/register', methods=['GET', 'POST'])
-def register_page():
     error = None
     if request.method == 'POST':
         first_name = request.form.get('FirstName')
@@ -110,6 +106,10 @@ def register_page():
             error = 'البريد الإلكتروني أو رقم الهاتف مسجل مسبقاً!'
         conn.close()
     return render_template('Register.html', error=error)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register_page():
+    return home()
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
