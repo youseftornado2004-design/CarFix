@@ -192,26 +192,49 @@
             </div>
         </div>
 
-        <!-- القسم الثاني: إضافة زيت محرك أو منتج جديد للمتجر -->
+        <!-- القسم الثاني: إضافة قطعة غيار جديدة (تتخزن في جدول Products) -->
         <div class="admin-section">
-            <h2>إضافة زيت محرك أو منتج جديد للمتجر</h2>
-            <form action="/add_oil" method="POST" enctype="multipart/form-data">
-                <label>اسم المنتج / الزيت:</label>
-                <input type="text" name="product_name" placeholder="مثال: زيت تويوتا الأصلي" required>
+            <h2>إضافة قطعة غيار جديدة للمتجر</h2>
+            <form action="/add_product" method="POST" enctype="multipart/form-data">
+                <label>اسم قطعة الغيار:</label>
+                <input type="text" name="product_name" placeholder="مثال: flash light" required>
                 
                 <label>الوصف والتفاصيل:</label>
-                <textarea name="description" rows="3" placeholder="أدخل تفاصيل الزيت أو المنتج..." required></textarea>
+                <textarea name="description" rows="3" placeholder="أدخل تفاصيل قطعة الغيار..." required></textarea>
                 
                 <label>السعر (جنيه):</label>
                 <input type="number" step="0.01" name="price" placeholder="مثال: 450" required>
                 
-                <label>السيارة المخصصة (اختياري):</label>
-                <input type="text" name="car_model" placeholder="مثال: Toyota أو عام لكافة السيارات">
+                <label>السيارة المخصصة:</label>
+                <input type="text" name="car_id" placeholder="مثال: toyota" required>
                 
-                <label>صورة المنتج:</label>
+                <label>صورة قطعة الغيار:</label>
                 <input type="file" name="image" accept="image/*">
                 
-                <button type="submit">حفظ وإضافة الزيت للداتابيز</button>
+                <button type="submit">حفظ قطعة الغيار في الداتابيز</button>
+            </form>
+        </div>
+
+        <!-- القسم الثالث: إضافة زيت محرك جديد (يتخزن في جدول Oils) -->
+        <div class="admin-section">
+            <h2>إضافة زيت محرك جديد للمتجر</h2>
+            <form action="/add_oil" method="POST" enctype="multipart/form-data">
+                <label>اسم الزيت:</label>
+                <input type="text" name="product_name" placeholder="مثال: زيت تويوتا الأصلي" required>
+                
+                <label>الوصف والتفاصيل:</label>
+                <textarea name="description" rows="3" placeholder="أدخل تفاصيل الزيت..." required></textarea>
+                
+                <label>السعر (جنيه):</label>
+                <input type="number" step="0.01" name="price" placeholder="مثال: 350" required>
+                
+                <label>السيارة المخصصة (اختياري):</label>
+                <input type="text" name="car_model" placeholder="مثال: toyota أو عام">
+                
+                <label>صورة الزيت:</label>
+                <input type="file" name="image" accept="image/*">
+                
+                <button type="submit">حفظ الزيت في الداتابيز</button>
             </form>
         </div>
 
