@@ -52,7 +52,7 @@ def add_car():
     
     return redirect(url_for('products_page'))
 
-# دمج جلب قطع الغيار والزيوت معاً في صفحة المنتجات لتعمل بأزرار التبديل
+# مسار عرض المنتجات والزيوت معاً (مُتطابق مع اسم الملف Product.html عندك)
 @app.route('/products')
 def products_page():
     conn = get_db_connection()
@@ -71,7 +71,7 @@ def products_page():
     car_model = session.get('car_model')
     car_year = session.get('car_year')
     
-    return render_template('products.html', products=products, oils=oils, car_model=car_model, car_year=car_year)
+    return render_template('Product.html', products=products, oils=oils, car_model=car_model, car_year=car_year)
 
 # صفحة عرض الزيوت المستقلة (لو احتجتها)
 @app.route('/oils')
