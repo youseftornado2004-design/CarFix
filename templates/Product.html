@@ -55,9 +55,74 @@
             font-weight: bold;
             text-decoration: none;
         }
-        .back-btn:hover {
-            background-color: #5a6268;
+        .back-btn:hover { background-color: #5a6268; }
+
+        /* شريط السلة العلوي (الستارة) */
+        .cart-bar {
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background 0.2s;
         }
+        .cart-bar:hover { background-color: #0056b3; }
+
+        /* الستارة المنسدلة للتفاصيل والسلة */
+        #cart-dropdown {
+            display: none;
+            background: var(--card-bg);
+            border-bottom: 2px solid #007bff;
+            padding: 20px;
+            max-height: 350px;
+            overflow-y: auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 45px;
+            z-index: 999;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--desc-color);
+        }
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .qty-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .qty-btn.minus { background: #dc3545; }
+        .checkout-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            width: 100%;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 16px;
+        }
+        .checkout-btn:hover { background: #218838; }
+
         .container {
             max-width: 1200px;
             margin: 30px auto;
@@ -69,7 +134,6 @@
             margin-bottom: 20px;
         }
         
-        /* أزرار التبديل بين الأقسام (قطع الغيار والزيوت) */
         .category-switcher {
             display: flex;
             justify-content: center;
@@ -116,15 +180,8 @@
             margin-bottom: 15px;
             background-color: #eee;
         }
-        .product-info h3 {
-            margin: 0 0 10px 0;
-            color: var(--text-color);
-        }
-        .product-info p {
-            color: var(--desc-color);
-            font-size: 14px;
-            margin: 5px 0;
-        }
+        .product-info h3 { margin: 0 0 10px 0; color: var(--text-color); }
+        .product-info p { color: var(--desc-color); font-size: 14px; margin: 5px 0; }
         .car-badge {
             display: inline-block;
             background-color: #e9ecef;
@@ -134,12 +191,7 @@
             font-size: 12px;
             margin-bottom: 8px;
         }
-        .price {
-            color: #28a745;
-            font-weight: bold;
-            font-size: 18px;
-            margin: 10px 0;
-        }
+        .price { color: #28a745; font-weight: bold; font-size: 18px; margin: 10px 0; }
         .buy-btn {
             background-color: #007bff;
             color: white;
@@ -151,8 +203,10 @@
             width: 100%;
             transition: background-color 0.2s;
         }
-        .buy-btn:hover {
-            background-color: #0056b3;
+        .buy-btn:hover { background-color: #0056b3; }
+        .buy-btn.out-of-stock {
+            background-color: #6c757d;
+            cursor: not-allowed;
         }
         .no-products {
             text-align: center;
@@ -181,6 +235,20 @@
 
     <button id="theme-toggle" onclick="toggleTheme()">🌓 الوضع الليلي</button>
 
+    <!-- شريط السلة (الستارة) العلوي -->
+    <div class="cart-bar" onclick="toggleCartDropdown()">
+        🛒 سلة المشتريات | الإجمالي: <span id="cart-total-price">0</span> جنية (اضغط لعرض التفاصيل والكميات)
+    </div>
+
+    <!-- الستارة المنسدلة -->
+    <div id="cart-dropdown">
+        <h3>محتويات السلة</h3>
+        <div id="cart-items-container">
+            <p style="text-align: center; color: var(--desc-color);">السلة فارغة حالياً</p>
+        </div>
+        <button class="checkout-btn" id="checkout-action-btn" style="display: none;" onclick="confirmPurchase()">تأكيد الشراء وإتمام الطلب</button>
+    </div>
+
     <div class="navbar">
         <h1>متجر قطع الغيار والزيوت</h1>
         <div class="nav-buttons">
@@ -197,7 +265,7 @@
             {% endif %}
         </h2>
 
-        <!-- أزرار التبديل الفورية بين قطع الغيار والزيوت -->
+        <!-- أزرار التبديل الفورية -->
         <div class="category-switcher">
             <button id="btn-products" class="switch-btn active" onclick="switchTab('products')">🚗 قطع الغيار</button>
             <button id="btn-oils" class="switch-btn" onclick="switchTab('oils')">🛢️ زيوت المحركات</button>
@@ -208,7 +276,7 @@
             <div class="products-grid">
                 {% if products %}
                     {% for product in products %}
-                        <div class="product-card">
+                        <div class="product-card" id="product-card-{{ product.ProductID }}">
                             <div>
                                 {% if product.Image %}
                                     <img src="{{ url_for('static', filename='uploads/' + product.Image) }}" alt="{{ product.ProductName }}">
@@ -219,17 +287,19 @@
                                     <h3>{{ product.ProductName }}</h3>
                                     <p>{{ product.Description }}</p>
                                     <p><strong>السيارة:</strong> {{ product.ModelName }} ({{ product.Year }})</p>
-                                    <p><strong>المخزون المتاح:</strong> {{ product.Stock }} قطعة</p>
+                                    <p><strong>المخزون المتاح:</strong> <span id="stock-count-{{ product.ProductID }}">{{ product.Stock }}</span> قطعة</p>
                                     <div class="price">{{ product.Price }} جنية</div>
                                 </div>
                             </div>
-                            <button class="buy-btn" onclick="buyProduct({{ product.ProductID }}, {{ product.Price }})">شراء الآن</button>
+                            {% if product.Stock > 0 %}
+                                <button class="buy-btn" id="btn-buy-{{ product.ProductID }}" onclick="addToCart({{ product.ProductID }}, '{{ product.ProductName }}', {{ product.Price }}, {{ product.Stock }})">إضافة للسلة</button>
+                            {% else %}
+                                <button class="buy-btn out-of-stock" disabled>نفذت الكمية</button>
+                            {% endif %}
                         </div>
                     {% endfor %}
                 {% else %}
-                    <div class="no-products">
-                        <p>عذراً، لا توجد قطع غيار متاحة حالياً.</p>
-                    </div>
+                    <div class="no-products"><p>عذراً، لا توجد قطع غيار متاحة حالياً.</p></div>
                 {% endif %}
             </div>
         </div>
@@ -239,7 +309,7 @@
             <div class="products-grid">
                 {% if oils %}
                     {% for oil in oils %}
-                        <div class="product-card">
+                        <div class="product-card" id="product-card-oil-{{ oil.id }}">
                             <div>
                                 {% if oil.Image %}
                                     <img src="{{ url_for('static', filename='uploads/' + oil.Image) }}" alt="{{ oil.ProductName }}">
@@ -252,16 +322,15 @@
                                     {% if oil.CarModel %}
                                         <div class="car-badge">🚗 مناسب لـ: {{ oil.CarModel }}</div>
                                     {% endif %}
+                                    <p><strong>المخزون المتاح:</strong> <span id="stock-count-oil-{{ oil.id }}">{{ oil.Stock if oil.Stock is defined else 10 }}</span> قطعة</p>
                                     <div class="price">{{ oil.Price }} جنية</div>
                                 </div>
                             </div>
-                            <button class="buy-btn" onclick="buyProduct({{ oil.id }}, {{ oil.Price }})">شراء الزيت</button>
+                            <button class="buy-btn" onclick="addToCart('oil_' + {{ oil.id }}, '{{ oil.ProductName }}', {{ oil.Price }}, {{ oil.Stock if oil.Stock is defined else 10 }})">إضافة للسلة</button>
                         </div>
                     {% endfor %}
                 {% else %}
-                    <div class="no-products">
-                        <p>عذراً، لا توجد زيوت مضافة حالياً.</p>
-                    </div>
+                    <div class="no-products"><p>عذراً، لا توجد زيوت مضافة حالياً.</p></div>
                 {% endif %}
             </div>
         </div>
@@ -269,6 +338,8 @@
     </div>
 
     <script>
+        let cart = {}; // تخزين المنتجات المضافة { id: {name, price, qty, maxStock} }
+
         function switchTab(tabName) {
             const secProducts = document.getElementById('section-products');
             const secOils = document.getElementById('section-oils');
@@ -288,6 +359,109 @@
             }
         }
 
+        function toggleCartDropdown() {
+            const dropdown = document.getElementById('cart-dropdown');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function addToCart(id, name, price, maxStock) {
+            if (!cart[id]) {
+                cart[id] = { name: name, price: price, qty: 1, maxStock: maxStock };
+            } else {
+                if (cart[id].qty < maxStock) {
+                    cart[id].qty += 1;
+                } else {
+                    alert("عذراً، لقد وصلت للحد الأقصى المتاح بالمخزون!");
+                    return;
+                }
+            }
+            updateCartUI();
+        }
+
+        function changeQty(id, change) {
+            if (!cart[id]) return;
+            cart[id].qty += change;
+            if (cart[id].qty <= 0) {
+                delete cart[id]; // لو الكمية بقت صفر، تشيل المنتج خالص من السلة
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cart-items-container');
+            const totalPriceSpan = document.getElementById('cart-total-price');
+            const checkoutBtn = document.getElementById('checkout-action-btn');
+            
+            container.innerHTML = '';
+            let total = 0;
+            let count = 0;
+
+            for (let id in cart) {
+                count++;
+                let item = cart[id];
+                total += item.price * item.qty;
+
+                container.innerHTML += `
+                    <div class="cart-item">
+                        <div>
+                            <strong>${item.name}</strong><br>
+                            <small>${item.price} ج.م × ${item.qty} = ${item.price * item.qty} ج.م</small>
+                        </div>
+                        <div class="qty-controls">
+                            <button class="qty-btn" onclick="changeQty('${id}', 1)">+</button>
+                            <span>${item.qty}</span>
+                            <button class="qty-btn minus" onclick="changeQty('${id}', -1)">-</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (count === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--desc-color);">السلة فارغة حالياً</p>';
+                checkoutBtn.style.display = 'none';
+            } else {
+                checkoutBtn.style.display = 'block';
+            }
+
+            totalPriceSpan.textContent = total;
+        }
+
+        function confirmPurchase() {
+            let itemsArray = [];
+            let totalAmount = 0;
+
+            for (let id in cart) {
+                totalAmount += cart[id].price * cart[id].qty;
+                itemsArray.push({
+                    id: isNaN(id) ? id.replace('oil_', '') : id,
+                    quantity: cart[id].qty
+                });
+            }
+
+            fetch('/save-purchase', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ total: totalAmount, items: itemsArray })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert("تم تأكيد الشراء بنجاح!");
+                    cart = {};
+                    updateCartUI();
+                    document.getElementById('cart-dropdown').style.display = 'none';
+                    location.reload(); // إعادة تحميل الصفحة لتحديث المخزون وانخفاض القطع اللي خلصت
+                } else {
+                    alert("حدث خطأ أثناء إتمام الشراء!");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("خطأ في الاتصال بالخادم.");
+            });
+        }
+
+        // إعدادات الوضع الليلي
         const savedTheme = localStorage.getItem('theme') || 'light';
         if (savedTheme === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
@@ -305,34 +479,6 @@
                 document.documentElement.setAttribute('data-theme', 'dark');
                 localStorage.setItem('theme', 'dark');
                 btn.textContent = '☀️ الوضع الفاتح';
-            }
-        }
-
-        function buyProduct(productId, price) {
-            if (confirm("هل أنت متأكد من رغبتك في إتمام عملية الشراء؟")) {
-                fetch('/save-purchase', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        total: price,
-                        items: [{ id: productId, quantity: 1 }]
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        alert("تمت عملية الشراء بنجاح! وسُجلت في طلبات المتجر.");
-                        location.reload();
-                    } else {
-                        alert("حدث خطأ أثناء إتمام الشراء، حاول مرة أخرى.");
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert("حدث خطأ في الاتصال بالخادم.");
-                });
             }
         }
     </script>
