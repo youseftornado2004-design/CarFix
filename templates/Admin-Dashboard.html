@@ -3,112 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم والسيطرة - متجر قطع الغيار</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>لوحة تحكم الأدمن - CarFix</title>
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #f8f9fa; }
-        .card { border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --navbar-bg: #1e1e1e;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #f1f1f1;
+            --navbar-bg: #1a1a1a;
+        }
+
+        body {
+            font-family: Tahoma, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .navbar {
+            background-color: var(--navbar-bg);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            background-color: #007bff;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            background-color: #0056b3;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .admin-section {
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .admin-section h2 {
+            margin-top: 0;
+            color: #007bff;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input, textarea, select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        button[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        .list-group {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .list-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        #theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            padding: 10px 15px;
+            border-radius: 50px;
+            border: none;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-<div class="container my-4">
-    <h2 class="text-center mb-4">لوحة التحكم والسيطرة - إدارة المتجر</h2>
+    <button id="theme-toggle" onclick="toggleTheme()">🌓 الوضع الليلي</button>
 
-    <div class="row">
-        <!-- قسم إضافة موديل سيارة -->
-        <div class="col-md-6">
-            <div class="card p-3">
-                <h4 class="mb-3 text-primary">إضافة موديل سيارة وسنة صنع جديدة</h4>
-                <form action="/add_car" method="POST">
-                    <div class="mb-3">
-                        <label class="form-label">اسم / موديل السيارة:</label>
-                        <input type="text" name="car_name" class="form-control" placeholder="مثال: تويوتا كورولا" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">سنة الصنع المتاحة:</label>
-                        <input type="text" name="car_year" class="form-control" placeholder="مثال: 2024" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">حفظ وإضافة السيارة للداتابيز</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- قسم إضافة قطعة غيار جديدة -->
-        <div class="col-md-6">
-            <div class="card p-3">
-                <h4 class="mb-3 text-success">إضافة قطعة غيار جديدة للمتجر</h4>
-                <form action="/add_product" method="POST" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label class="form-label">اسم القطعة:</label>
-                        <input type="text" name="product_name" class="form-control" placeholder="مثال: تيل فرامل أمامي" required>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">السعر (ج.م):</label>
-                            <input type="number" step="0.01" name="price" class="form-control" placeholder="مثال: 1200" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">الكمية بالمخزون (Stock):</label>
-                            <input type="number" name="stock" class="form-control" placeholder="10" required>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">صورة قطعة الغيار:</label>
-                        <input type="file" name="image" class="form-control" accept="image/*" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">وصف القطعة:</label>
-                        <textarea name="description" class="form-control" rows="2" placeholder="وصف تفصيلي واستخدامات قطعة الغيار..."></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-success w-100">حفظ ونشر قطعة الغيار</button>
-                </form>
-            </div>
+    <div class="navbar">
+        <h1>لوحة تحكم الأدمن (CarFix)</h1>
+        <div class="nav-links">
+            <a href="/products">عرض المتجر والزيوت</a>
+            <a href="/select-car">صفحة اختيار السيارة</a>
         </div>
     </div>
 
-    <!-- قسم إضافة زيت محرك جديد (الجديد كلياً) -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card p-4 border-warning">
-                <h4 class="mb-3 text-warning">🛢️ إضافة زيت محرك أو مضخة جديد للمتجر</h4>
-                <form action="/add_oil" method="POST" enctype="multipart/form-data">
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">اسم الزيت:</label>
-                            <input type="text" name="product_name" class="form-control" placeholder="مثال: زيت توتال 5W40" required>
+    <div class="container">
+
+        <!-- القسم الأول: إضافة موديل سيارة وسنة صنع جديدة -->
+        <div class="admin-section">
+            <h2>إضافة موديل سيارة وسنة صنع جديدة</h2>
+            <form action="/admin_add_car" method="POST">
+                <label>اسم / موديل السيارة:</label>
+                <input type="text" name="car_model" placeholder="مثال: Toyota" required>
+                
+                <label>سنة الصنع المتاحة:</label>
+                <input type="text" name="car_year" placeholder="مثال: 2024" required>
+                
+                <button type="submit">حفظ وإضافة السيارة للداتابيز</button>
+            </form>
+
+            <h3 style="margin-top: 20px; font-size: 16px;">السيارات المضافة حالياً في النظام:</h3>
+            <div class="list-group">
+                {% if cars %}
+                    {% for car in cars %}
+                        <div class="list-item">
+                            <span>🚗 <strong>{{ car.car_model }}</strong></span>
+                            <span>سنة: {{ car.car_year }}</span>
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">السعر (ج.م):</label>
-                            <input type="number" step="0.01" name="price" class="form-control" placeholder="مثال: 450" required>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">موديل السيارة المتوافق:</label>
-                            <input type="text" name="car_model" class="form-control" placeholder="مثال: شيفروليه كروز">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">صورة الزيت:</label>
-                        <input type="file" name="image" class="form-control" accept="image/*" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">وصف الزيت:</label>
-                        <textarea name="description" class="form-control" rows="2" placeholder="تفاصيل ولزوجة الزيت والمواصفات..."></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-warning w-100 text-dark fw-bold">حفظ وإضافة الزيت لقسم الزيوت</button>
-                </form>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; color: #777; padding: 10px;">لا توجد سيارات مضافة حتى الآن.</div>
+                {% endif %}
             </div>
         </div>
+
+        <!-- القسم الثاني: إضافة زيت محرك أو منتج جديد للمتجر -->
+        <div class="admin-section">
+            <h2>إضافة زيت محرك أو منتج جديد للمتجر</h2>
+            <form action="/add_oil" method="POST" enctype="multipart/form-data">
+                <label>اسم المنتج / الزيت:</label>
+                <input type="text" name="product_name" placeholder="مثال: زيت تويوتا الأصلي" required>
+                
+                <label>الوصف والتفاصيل:</label>
+                <textarea name="description" rows="3" placeholder="أدخل تفاصيل الزيت أو المنتج..." required></textarea>
+                
+                <label>السعر (جنيه):</label>
+                <input type="number" step="0.01" name="price" placeholder="مثال: 450" required>
+                
+                <label>السيارة المخصصة (اختياري):</label>
+                <input type="text" name="car_model" placeholder="مثال: Toyota أو عام لكافة السيارات">
+                
+                <label>صورة المنتج:</label>
+                <input type="file" name="image" accept="image/*">
+                
+                <button type="submit">حفظ وإضافة الزيت للداتابيز</button>
+            </form>
+        </div>
+
     </div>
 
-    <!-- روابط سريعة للرجوع -->
-    <div class="text-center mt-3">
-        <a href="/oils" target="_blank" class="btn btn-outline-dark me-2">عرض صفحة الزيوت 🛢️</a>
-        <a href="/" class="btn btn-outline-secondary">الذهاب للموقع الرئيسي 🚗</a>
-    </div>
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-toggle').textContent = '☀️ الوضع الفاتح';
+        }
 
-</div>
-
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const btn = document.getElementById('theme-toggle');
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+                btn.textContent = '🌓 الوضع الليلي';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                btn.textContent = '☀️ الوضع الفاتح';
+            }
+        }
+    </script>
 </body>
 </html>
