@@ -100,6 +100,7 @@
         button[type="submit"]:hover { background: #218838; }
 
         .login-link { color: #17a2b8; text-decoration: none; text-align: center; display: block; margin-top: 15px; font-size: 14px; }
+        .login-link:hover { text-decoration: underline; }
         
         #theme-toggle {
             position: fixed;
@@ -122,7 +123,13 @@
     <button id="theme-toggle" onclick="toggleTheme()">☀️ الوضع الفاتح</button>
 
     <!-- الستارة الذكية للتنبيه -->
-    <div id="alert-banner">الرجاء التأكد من ملئ الخانات الأجبارية</div>
+    <div id="alert-banner">
+        {% if error %}
+            {{ error }}
+        {% else %}
+            برجاء ملء جميع الخانات الإجبارية بشكل صحيح!
+        {% endif %}
+    </div>
 
     <div class="box">
         <h2>انشاء حساب جديد</h2>
@@ -134,7 +141,7 @@
                     <input type="text" name="first_name" required oninput="hideAlert()">
                 </div>
                 <div>
-                    <label>اسم العائلة:</label>
+                    <label>اسم العيلة:</label>
                     <input type="text" name="last_name" required oninput="hideAlert()">
                 </div>
             </div>
@@ -182,10 +189,19 @@
 
             <button type="submit">تسجيل الحساب</button>
         </form>
-        <a href="/select-car" class="login-link">العودة لصفحة اختيار السيارة</a>
+        
+        <!-- الرابط المعدل لصفحة تسجيل الدخول -->
+        <a href="/login" class="login-link">لديك حساب بالفعل؟ سجل دخولك هنا</a>
     </div>
 
     <script>
+        // عرض الستارة لو فيه خطأ جاي من الـ backend (زي إيميل مسجل مسبقاً)
+        window.onload = function() {
+            {% if error %}
+                showAlert("{{ error }}");
+            {% endif %}
+        };
+
         // تعبئة أيام الشهر من 1 إلى 31
         const daySelect = document.getElementById('day-select');
         for (let i = 1; i <= 31; i++) {
@@ -195,7 +211,7 @@
             daySelect.appendChild(opt);
         }
 
-        // تعبئة سنوات الميلاد من 1900 لحد 2026
+        // تعبئة سنوات الميلاد من 2026 لحد 1900
         const yearSelect = document.getElementById('year-select');
         for (let y = 2026; y >= 1900; y--) {
             let opt = document.createElement('option');
