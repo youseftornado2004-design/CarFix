@@ -3,26 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الدخول - متجر قطع الغيار</title>
+    <title>تسجيل الدخول - CarFix</title>
     <style>
         :root {
-            --bg-color: #f4f7f6;
-            --container-bg: #ffffff;
-            --text-color: #333333;
-            --label-color: #555555;
-            --input-bg: #ffffff;
-            --input-border: #ccc;
-            --input-text: #333333;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #f1f1f1;
+            --input-bg: #2a2a2a;
+            --border-color: #444;
+            --accent-color: #007bff;
         }
 
-        [data-theme="dark"] {
-            --bg-color: #121212;
-            --container-bg: #1e1e1e;
-            --text-color: #f1f1f1;
-            --label-color: #cccccc;
-            --input-bg: #2a2a2a;
-            --input-border: #444;
-            --input-text: #ffffff;
+        [data-theme="light"] {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --input-bg: #f9f9f9;
+            --border-color: #ccc;
+            --accent-color: #007bff;
         }
 
         body {
@@ -30,127 +28,174 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
-        .login-container {
-            background: var(--container-bg);
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            width: 400px;
-            transition: background-color 0.3s ease;
-        }
-        h2 {
-            text-align: center;
-            color: var(--text-color);
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: var(--label-color);
-            font-weight: bold;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--input-border);
-            background-color: var(--input-bg);
-            color: var(--input-text);
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-        button[type="submit"] {
-            width: 100%;
-            padding: 12px;
-            background-color: #007bff;
-            border: none;
-            border-radius: 5px;
+
+        /* الستارة الذكية للتنبيهات من أعلى */
+        #alert-banner {
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #dc3545;
             color: white;
-            font-size: 16px;
-            cursor: pointer;
+            padding: 12px 25px;
+            border-radius: 0 0 8px 8px;
             font-weight: bold;
-            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: top 0.4s ease-in-out;
+            z-index: 1000;
         }
-        button[type="submit"]:hover {
-            background-color: #0056b3;
+        #alert-banner.show {
+            top: 0;
         }
-        .error-box {
-            background-color: #ffdddd;
-            color: #d8000c;
+
+        .box {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            margin: 20px;
+        }
+
+        h2 { color: var(--accent-color); text-align: center; margin-bottom: 20px; }
+
+        form { display: flex; flex-direction: column; gap: 15px; }
+
+        label { font-size: 13px; font-weight: bold; }
+
+        input {
             padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-            margin-bottom: 15px;
-            font-weight: bold;
-            border: 1px solid #f5c6cb;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 6px;
             font-size: 14px;
         }
+
+        button[type="submit"] {
+            background: #007bff;
+            color: #fff;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 5px;
+            transition: background 0.2s;
+        }
+        button[type="submit"]:hover { background: #0056b3; }
+
+        .links-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .links-container a { color: #17a2b8; text-decoration: none; }
+        .links-container a:hover { text-decoration: underline; }
+
         #theme-toggle {
             position: fixed;
             bottom: 20px;
             left: 20px;
-            z-index: 1000;
             padding: 10px 15px;
             border-radius: 50px;
             border: none;
-            background: #007bff;
+            background: var(--accent-color);
             color: white;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            z-index: 1001;
         }
     </style>
 </head>
-<body>
+<body data-theme="dark">
 
-    <button id="theme-toggle" onclick="toggleTheme()">🌓 الوضع الليلي</button>
+    <button id="theme-toggle" onclick="toggleTheme()">☀️ الوضع الفاتح</button>
 
-    <div class="login-container">
-        <h2>تسجيل الدخول</h2>
-        
+    <!-- الستارة الذكية للتنبيه -->
+    <div id="alert-banner">
         {% if error %}
-            <div class="error-box">{{ error }}</div>
+            {{ error }}
+        {% else %}
+            برجاء ملء جميع الخانات المطلوبة!
         {% endif %}
+    </div>
 
-        <form action="/login" method="POST">
-            <div class="form-group">
-                <label>البريد الإلكتروني:</label>
-                <input type="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label>كلمة المرور:</label>
-                <input type="password" name="password" required>
-            </div>
-            <button type="submit">تسجيل الدخول</button>
+    <div class="box">
+        <h2>تسجيل الدخول</h2>
+        <form id="login-form" action="/login" method="POST" onsubmit="return validateForm(event)">
+            
+            <label>البريد الإلكتروني أو رقم الهاتف:</label>
+            <input type="text" name="identifier" required oninput="hideAlert()">
+
+            <label>كلمة المرور:</label>
+            <input type="password" name="password" required oninput="hideAlert()">
+
+            <button type="submit">دخول</button>
         </form>
+
+        <div class="links-container">
+            <a href="/register">ليس لديك حساب؟ إنشاء حساب جديد</a>
+        </div>
     </div>
 
     <script>
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        if (savedTheme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            document.getElementById('theme-toggle').textContent = '☀️ الوضع الفاتح';
+        // لو جاي خطأ من البايثون، نزل الستارة فوراً
+        window.onload = function() {
+            {% if error %}
+                showAlert("{{ error }}");
+            {% endif %}
+        };
+
+        function showAlert(msg) {
+            const banner = document.getElementById('alert-banner');
+            banner.textContent = msg;
+            banner.classList.add('show');
+            setTimeout(() => {
+                banner.classList.remove('show');
+            }, 4000); // تختفي لوحدها بعد 4 ثوانٍ أو أول ما يكتب
+        }
+
+        function hideAlert() {
+            const banner = document.getElementById('alert-banner');
+            banner.classList.remove('show');
+        }
+
+        function validateForm(event) {
+            const form = document.getElementById('login-form');
+            const inputs = form.querySelectorAll('input');
+            for (let input of inputs) {
+                if (!input.value.trim()) {
+                    event.preventDefault();
+                    showAlert('برجاء ملء جميع الخانات الإجبارية قبل المتابعة!');
+                    input.focus();
+                    return false;
+                }
+            }
+            return true;
         }
 
         function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const body = document.body;
             const btn = document.getElementById('theme-toggle');
-            if (currentTheme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'light');
-                localStorage.setItem('theme', 'light');
-                btn.textContent = '🌓 الوضع الليلي';
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.setAttribute('data-theme', 'light');
+                btn.textContent = '🌙 الوضع الليلي';
             } else {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
+                body.setAttribute('data-theme', 'dark');
                 btn.textContent = '☀️ الوضع الفاتح';
             }
         }
