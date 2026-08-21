@@ -89,7 +89,7 @@ def google_verify_1():
 def google_verify_2():
     return "google-site-verification: uNnjjl8fAb4LnQsWDUJYTI-y3sv_kLdzQWJsIg0XC6Q"
 
-# خلي الصفحة الرئيسية (/) تعرض صفحة التسجيل مباشرة عشان جوجل يشوف كود التحقق هناك
+# خلي الصفحة الرئيسية (/) تعرض صفحة التسجيل مباشرة
 @app.route('/', methods=['GET', 'POST'])
 def home():
     error = None
@@ -278,6 +278,46 @@ def product_page():
     conn.close()
     return render_template('Product.html', products=products, car_model=car_model, car_year=car_year)
 
+# --- مسار قسم الزيوت الجديد ---
+@app.route('/oils')
+def oils_page():
+    if 'user_email' not in session:
+        return redirect(url_for('login_page'))
+    
+    conn = get_db_connection()
+    oils = []
+    try:
+        oils = conn.execute('''
+            SELECT Products.*, Cars.ModelName, Cars.Year FROM Products 
+            LEFT JOIN Cars ON Products.CarID = Cars.CarID
+            WHERE (Products.ProductName LIKE '%زيت%' OR Products.ProductName LIKE '%Oil%') AND Products.Stock > 0
+        ''').fetchall()
+    except Exception as e:
+        print("Oils Page Error:", e)
+    conn.close()
+    return render_template('Oils.html', oils=oils)
+
+# --- مسار صفحة تأكيد الشراء وبوليصة الشراء الجديدة ---
+@app.route('/order-confirmation/<int:purchase_id>')
+def order_confirmation(purchase_id):
+    if 'user_email' not in session:
+        return redirect(url_for('login_page'))
+        
+    conn = get_db_connection()
+    purchase = conn.execute('''
+        SELECT Purchases.*, Users.FirstName, Users.LastName, Users.Email, Users.Phone
+        FROM Purchases
+        JOIN Users ON Purchases.UserID = Users.UserID
+        WHERE Purchases.PurchaseID = ?
+    ''', (purchase_id,)).fetchone()
+    
+    conn.close()
+    
+    if not purchase:
+        return redirect(url_for('select_car_page'))
+        
+    return render_template('OrderConfirmation.html', purchase=purchase)
+
 @app.route('/submit-complaint', methods=['POST'])
 def submit_complaint():
     if 'user_email' not in session:
@@ -305,7 +345,8 @@ def save_purchase():
     
     conn = get_db_connection()
     try:
-        conn.execute('INSERT INTO Purchases (UserID, TotalAmount) VALUES (?, ?)', (user_id, total_amount))
+        cursor = conn.execute('INSERT INTO Purchases (UserID, TotalAmount) VALUES (?, ?)', (user_id, total_amount))
+        purchase_id = cursor.lastrowid # جلب رقم البوليصة/الطلب الحالي
         
         for item in items:
             prod_id = item.get('id')
@@ -313,10 +354,12 @@ def save_purchase():
             conn.execute('UPDATE Products SET Stock = Stock - ? WHERE ProductID = ?', (qty, prod_id))
             
         conn.commit()
+        conn.close()
+        return {'status': 'success', 'purchase_id': purchase_id}
     except Exception as e:
         print("Purchase Error:", e)
-    conn.close()
-    return {'status': 'success'}
+        conn.close()
+        return {'status': 'error'}, 500
 
 @app.route('/logout')
 def logout():
