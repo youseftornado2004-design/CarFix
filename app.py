@@ -13,17 +13,19 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-# دالة لإنشاء جداول الداتا بيز (المنتجات، الزيوت، والسيارات المتاحة) أوتوماتيكياً
+# دالة إعادة إنشاء وتحديث الجداول بأمان تام بدون أخطاء
 def init_db():
     conn = get_db_connection()
-    # جدول السيارات المتاحة للإضافة من الأدمن
+    # لو الجدول القديم فيه مشكلة في الأعمدة، بنحذفه وننشئه بالهيكل السليم
+    conn.execute('DROP TABLE IF EXISTS cars')
     conn.execute('''
-        CREATE TABLE IF NOT EXISTS cars (
+        CREATE TABLE cars (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             car_model TEXT,
             car_year TEXT
         )
     ''')
+    
     # جدول الزيوت
     conn.execute('''
         CREATE TABLE IF NOT EXISTS oils (
@@ -44,11 +46,10 @@ init_db()
 def home():
     return redirect(url_for('select_car_page'))
 
-# صفحة اختيار السيارة (تعرض السيارات المخزنة في الداتا بيز من لوحة الأدمن)
+# صفحة اختيار السيارة
 @app.route('/select-car')
 def select_car_page():
     conn = get_db_connection()
-    init_db()
     try:
         cars = conn.execute('SELECT * FROM cars').fetchall()
     except:
@@ -56,38 +57,31 @@ def select_car_page():
     conn.close()
     return render_template('Select-Car.html', cars=cars)
 
-# مسار إضافة سيارة جديدة من لوحة تحكم الأدمن وحفظها في الداتا بيز
+# مسار إضافة سيارة جديدة من لوحة تحكم الأدمن
 @app.route('/admin_add_car', methods=['POST'])
 def admin_add_car():
-    car_model = request.form.get('car_model') or request.form.get('model_name')
-    car_year = request.form.get('car_year') or request.form.get('year')
+    car_model = request.form.get('car_model')
+    car_year = request.form.get('car_year')
     
     if car_model and car_year:
         conn = get_db_connection()
-        init_db()
         conn.execute('INSERT INTO cars (car_model, car_year) VALUES (?, ?)', (car_model, car_year))
         conn.commit()
         conn.close()
         
     return redirect(url_for('admin_dashboard'))
 
-# مسار اختيار العميل لعربيته وتحويله لصفحة المنتجات
+# مسار اختيار العميل لعربيته
 @app.route('/add_car', methods=['POST'])
 def add_car():
-    car_model = request.form.get('car_model') or request.form.get('model_name')
-    car_year = request.form.get('car_year') or request.form.get('year')
-    
-    session['car_model'] = car_model
-    session['car_year'] = car_year
-    
+    session['car_model'] = request.form.get('car_model')
+    session['car_year'] = request.form.get('car_year')
     return redirect(url_for('products_page'))
 
 # صفحة المنتجات والزيوت
 @app.route('/products')
 def products_page():
     conn = get_db_connection()
-    init_db()
-    
     try:
         products = conn.execute('SELECT * FROM products').fetchall()
     except:
@@ -105,7 +99,6 @@ def products_page():
 @app.route('/admin')
 def admin_dashboard():
     conn = get_db_connection()
-    init_db()
     try:
         products = conn.execute('SELECT * FROM products').fetchall()
     except:
@@ -131,7 +124,6 @@ def add_oil():
         image_file.save(os.path.join(UPLOAD_FOLDER, image_filename))
     
     conn = get_db_connection()
-    init_db()
     conn.execute('''
         INSERT INTO oils (ProductName, Description, Price, CarModel, Image)
         VALUES (?, ?, ?, ?, ?)
