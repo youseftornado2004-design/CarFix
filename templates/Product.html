@@ -204,10 +204,6 @@
             transition: background-color 0.2s;
         }
         .buy-btn:hover { background-color: #0056b3; }
-        .buy-btn.out-of-stock {
-            background-color: #6c757d;
-            cursor: not-allowed;
-        }
         .no-products {
             text-align: center;
             color: var(--desc-color);
@@ -286,16 +282,12 @@
                                 <div class="product-info">
                                     <h3>{{ product.ProductName }}</h3>
                                     <p>{{ product.Description }}</p>
-                                    <p><strong>السيارة:</strong> {{ product.ModelName }} ({{ product.Year }})</p>
+                                    <p><strong>السيارة:</strong> {{ product.ModelName if product.ModelName else 'عام' }}</p>
                                     <p><strong>المخزون المتاح:</strong> <span id="stock-count-{{ product.ProductID }}">{{ product.Stock }}</span> قطعة</p>
                                     <div class="price">{{ product.Price }} جنية</div>
                                 </div>
                             </div>
-                            {% if product.Stock > 0 %}
-                                <button class="buy-btn" id="btn-buy-{{ product.ProductID }}" onclick="addToCart({{ product.ProductID }}, '{{ product.ProductName }}', {{ product.Price }}, {{ product.Stock }})">إضافة للسلة</button>
-                            {% else %}
-                                <button class="buy-btn out-of-stock" disabled>نفذت الكمية</button>
-                            {% endif %}
+                            <button class="buy-btn" onclick="addToCart({{ product.ProductID }}, '{{ product.ProductName }}', {{ product.Price }}, {{ product.Stock }})">إضافة للسلة</button>
                         </div>
                     {% endfor %}
                 {% else %}
@@ -322,11 +314,11 @@
                                     {% if oil.CarModel %}
                                         <div class="car-badge">🚗 مناسب لـ: {{ oil.CarModel }}</div>
                                     {% endif %}
-                                    <p><strong>المخزون المتاح:</strong> <span id="stock-count-oil-{{ oil.id }}">{{ oil.Stock if oil.Stock is defined else 10 }}</span> قطعة</p>
+                                    <p><strong>المخزون المتاح:</strong> <span id="stock-count-oil-{{ oil.id }}">{{ oil.Stock }}</span> قطعة</p>
                                     <div class="price">{{ oil.Price }} جنية</div>
                                 </div>
                             </div>
-                            <button class="buy-btn" onclick="addToCart('oil_' + {{ oil.id }}, '{{ oil.ProductName }}', {{ oil.Price }}, {{ oil.Stock if oil.Stock is defined else 10 }})">إضافة للسلة</button>
+                            <button class="buy-btn" onclick="addToCart('oil_' + {{ oil.id }}, '{{ oil.ProductName }}', {{ oil.Price }}, {{ oil.Stock }})">إضافة للسلة</button>
                         </div>
                     {% endfor %}
                 {% else %}
@@ -338,7 +330,7 @@
     </div>
 
     <script>
-        let cart = {}; // تخزين المنتجات المضافة { id: {name, price, qty, maxStock} }
+        let cart = {};
 
         function switchTab(tabName) {
             const secProducts = document.getElementById('section-products');
@@ -382,7 +374,7 @@
             if (!cart[id]) return;
             cart[id].qty += change;
             if (cart[id].qty <= 0) {
-                delete cart[id]; // لو الكمية بقت صفر، تشيل المنتج خالص من السلة
+                delete cart[id];
             }
             updateCartUI();
         }
@@ -433,7 +425,7 @@
             for (let id in cart) {
                 totalAmount += cart[id].price * cart[id].qty;
                 itemsArray.push({
-                    id: isNaN(id) ? id.replace('oil_', '') : id,
+                    id: id,
                     quantity: cart[id].qty
                 });
             }
@@ -450,7 +442,7 @@
                     cart = {};
                     updateCartUI();
                     document.getElementById('cart-dropdown').style.display = 'none';
-                    location.reload(); // إعادة تحميل الصفحة لتحديث المخزون وانخفاض القطع اللي خلصت
+                    location.reload(); // إعادة تحميل الصفحة لتحديث واختفاء المنتجات التي نفذت تماماً
                 } else {
                     alert("حدث خطأ أثناء إتمام الشراء!");
                 }
@@ -461,7 +453,6 @@
             });
         }
 
-        // إعدادات الوضع الليلي
         const savedTheme = localStorage.getItem('theme') || 'light';
         if (savedTheme === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
