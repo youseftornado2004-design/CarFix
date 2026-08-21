@@ -26,7 +26,7 @@ def init_db():
         )
     ''')
     
-    # 2. جدول الزيوت (مضاف إليه الكمية Stock)
+    # 2. جدول الزيوت
     conn.execute('''
         CREATE TABLE IF NOT EXISTS oils (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,7 +39,7 @@ def init_db():
         )
     ''')
     
-    # 3. جدول قطع الغيار (مضاف إليه الكمية Stock)
+    # 3. جدول قطع الغيار
     conn.execute('''
         CREATE TABLE IF NOT EXISTS products (
             ProductID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -52,7 +52,7 @@ def init_db():
         )
     ''')
 
-    # 4. جدول الشكاوى والدعم الفني (يربط العملاء بالأدمن)
+    # 4. جدول الشكاوى والدعم الفني
     conn.execute('''
         CREATE TABLE IF NOT EXISTS complaints (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -64,13 +64,19 @@ def init_db():
         )
     ''')
 
-    # 5. جدول العملاء والمشتريات (لإدارة إجمالي المشتريات والمسجلين حديثاً)
+    # 5. جدول العملاء ببيانات التسجيل الكاملة
     conn.execute('''
         CREATE TABLE IF NOT EXISTS customers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            email TEXT,
+            first_name TEXT,
+            last_name TEXT,
+            email TEXT UNIQUE,
+            password TEXT,
             phone TEXT,
+            birth_day TEXT,
+            birth_month TEXT,
+            birth_year TEXT,
+            gender TEXT,
             total_spent REAL DEFAULT 0,
             join_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
@@ -83,7 +89,36 @@ init_db()
 
 @app.route('/')
 def home():
-    return redirect(url_for('select_car_page'))
+    return redirect(url_for('login_page'))
+
+# مسار تسجيل الدخول الموحّد (للأدمن وللعملاء)
+@app.route('/login', methods=['GET', 'POST'])
+def login_page():
+    if request.method == 'POST':
+        identifier = request.form.get('identifier', '').strip()
+        password = request.form.get('password', '').strip()
+        
+        # 1. التحقق إذا كان المستخدم هو الأدمن (يمكنك تعديل بيانات الأدمن حسب رغبتك)
+        if (identifier == "admin@carfix.com" or identifier == "01000000000") and password == "admin123":
+            session['is_admin'] = True
+            return redirect(url_for('admin_dashboard'))
+        
+        # 2. التحقق من جدول العملاء في الداتا بيز (بالإيميل أو رقم الهاتف مع كلمة المرور)
+        conn = get_db_connection()
+        customer = conn.execute(
+            'SELECT * FROM customers WHERE (email = ? OR phone = ?) AND password = ?',
+            (identifier, identifier, password)
+        ).fetchone()
+        conn.close()
+        
+        if customer:
+            session['customer_id'] = customer['id']
+            session['customer_name'] = customer['first_name']
+            return redirect(url_for('select_car_page'))
+        else:
+            return render_template('Login.html', error="البيانات غير صحيحة أو الحساب غير مسجل، برجاء التأكد أو إنشاء حساب جديد.")
+            
+    return render_template('Login.html')
 
 @app.route('/select-car')
 def select_car_page():
@@ -121,7 +156,36 @@ def products_page():
     
     return render_template('Product.html', products=products, oils=oils, car_model=car_model, car_year=car_year)
 
-# صفحة مركز الدعم والشكاوى للعميل
+# مسار التسجيل الكامل للعميل
+@app.route('/register', methods=['GET', 'POST'])
+def register_page():
+    if request.method == 'POST':
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        phone = request.form.get('phone')
+        day = request.form.get('birth_day')
+        month = request.form.get('birth_month')
+        year = request.form.get('birth_year')
+        gender = request.form.get('gender')
+        
+        if first_name and last_name and email and password and phone and day and month and year and gender:
+            try:
+                conn = get_db_connection()
+                conn.execute('''
+                    INSERT INTO customers (first_name, last_name, email, password, phone, birth_day, birth_month, birth_year, gender, total_spent)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+                ''', (first_name, last_name, email, password, phone, day, month, year, gender))
+                conn.commit()
+                conn.close()
+                return redirect(url_for('login_page')) # بعد التسجيل يروح لصفحة اللوجن مباشرة لتسجيل الدخول
+            except sqlite3.IntegrityError:
+                return render_template('Register.html', error="البريد الإلكتروني مسجل من قبل!")
+                
+    return render_template('Register.html')
+
+# مسار مركز الدعم والشكاوى
 @app.route('/support', methods=['GET', 'POST'])
 def support_page():
     if request.method == 'POST':
@@ -136,9 +200,12 @@ def support_page():
             return redirect(url_for('select_car_page'))
     return render_template('Support.html')
 
-# لوحة تحكم الأدمن المحمية والمعروض فيها كل الجداول والبيانات
+# لوحة تحكم الأدمن (محمية ببيانات الأدمن)
 @app.route('/admin')
 def admin_dashboard():
+    if not session.get('is_admin'):
+        return redirect(url_for('login_page'))
+    
     conn = get_db_connection()
     products = conn.execute('SELECT * FROM products').fetchall()
     oils = conn.execute('SELECT * FROM oils').fetchall()
@@ -194,7 +261,6 @@ def add_product():
     conn.close()
     return redirect(url_for('admin_dashboard'))
 
-# مسار رد الأدمن على الشكاوى
 @app.route('/reply_complaint/<int:id>', methods=['POST'])
 def reply_complaint(id):
     reply_text = request.form.get('reply')
