@@ -5,15 +5,33 @@ from flask import Flask, render_template, request, redirect, url_for, session
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
 
-# التأكد من وجود مجلد الرفع للصور
+# مجلد حفظ الصور المرفوعة
 UPLOAD_FOLDER = 'static/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# دالة للاتصال بقاعدة البيانات
 def get_db_connection():
     conn = sqlite3.connect('StoreDB.db')
     conn.row_factory = sqlite3.Row
     return conn
+
+# دالة التأكد من إنشاء جدول الزيوت أوتوماتيكياً من غير المساس بجداول الداتا بيز الأخرى
+def init_db():
+    conn = get_db_connection()
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS oils (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ProductName TEXT,
+            Description TEXT,
+            Price REAL,
+            CarModel TEXT,
+            Image TEXT
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# تشغيل فحص/إنشاء الجدول عند بدء التشغيل
+init_db()
 
 @app.route('/')
 def home():
@@ -23,24 +41,32 @@ def home():
 def select_car_page():
     return render_template('Select-Car.html')
 
-# مسار صفحة الزيوت (يعرض الزيوت المضافة من الداتا بيز)
+# صفحة عرض الزيوت
 @app.route('/oils')
 def oils_page():
     conn = get_db_connection()
+    init_db()
     oils = conn.execute('SELECT * FROM oils').fetchall()
     conn.close()
     return render_template('Oils.html', oils=oils)
 
-# مسار لوحة التحكم للأدمن
+# لوحة تحكم الأدمن (بدون أي تأثير على جداول قطع الغيار أو السيارات القديمة)
 @app.route('/admin')
 def admin_dashboard():
     conn = get_db_connection()
-    products = conn.execute('SELECT * FROM products').fetchall()
+    init_db()
+    
+    # جلب المنتجات القديمة لو وجدت بأمان تام
+    try:
+        products = conn.execute('SELECT * FROM products').fetchall()
+    except:
+        products = []
+        
     oils = conn.execute('SELECT * FROM oils').fetchall()
     conn.close()
     return render_template('Admin-Dashboard.html', products=products, oils=oils)
 
-# مسار إضافة زيت جديد من لوحة التحكم (واقعي 100% للعميل)
+# معالجة إضافة زيت جديد من لوحة التحكم وحفظه في الداتا بيز
 @app.route('/add_oil', methods=['POST'])
 def add_oil():
     product_name = request.form.get('product_name')
@@ -55,17 +81,7 @@ def add_oil():
         image_file.save(os.path.join(UPLOAD_FOLDER, image_filename))
     
     conn = get_db_connection()
-    # لو جدول oils مش موجود، الكود بينشئه تلقائي عشان مفيش داتا بيز تبوظ
-    conn.execute('''
-        CREATE TABLE IF NOT EXISTS oils (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            ProductName TEXT,
-            Description TEXT,
-            Price REAL,
-            CarModel TEXT,
-            Image TEXT
-        )
-    ''')
+    init_db()
     conn.execute('''
         INSERT INTO oils (ProductName, Description, Price, CarModel, Image)
         VALUES (?, ?, ?, ?, ?)
@@ -75,10 +91,9 @@ def add_oil():
     
     return redirect(url_for('admin_dashboard'))
 
-# مسار صفحة تأكيد الطلب وبوليصة الشراء
+# صفحة بوليصة الشراء وتأكيد الطلب
 @app.route('/order-confirmation')
 def order_confirmation():
-    # تقدر تستقبل بيانات الطلب هنا أو تعرض آخر طلب
     return render_template('OrderConfirmation.html')
 
 if __name__ == '__main__':
