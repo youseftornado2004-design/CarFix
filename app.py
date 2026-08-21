@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
@@ -14,7 +14,7 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-# دالة التأكد من إنشاء جدول الزيوت أوتوماتيكياً من غير المساس بجداول الداتا بيز الأخرى
+# دالة التأكد من إنشاء جدول الزيوت أوتوماتيكياً
 def init_db():
     conn = get_db_connection()
     conn.execute('''
@@ -30,7 +30,6 @@ def init_db():
     conn.commit()
     conn.close()
 
-# تشغيل فحص/إنشاء الجدول عند بدء التشغيل
 init_db()
 
 @app.route('/')
@@ -41,7 +40,25 @@ def home():
 def select_car_page():
     return render_template('Select-Car.html')
 
-# صفحة عرض الزيوت
+# دمج جلب قطع الغيار والزيوت معاً في صفحة المنتجات لتعمل بأزرار التبديل
+@app.route('/products')
+def products_page():
+    conn = get_db_connection()
+    init_db()
+    
+    # جلب قطع الغيار بأمان
+    try:
+        products = conn.execute('SELECT * FROM products').fetchall()
+    except:
+        products = []
+        
+    # جلب الزيوت
+    oils = conn.execute('SELECT * FROM oils').fetchall()
+    conn.close()
+    
+    return render_template('products.html', products=products, oils=oils)
+
+# صفحة عرض الزيوت المستقلة (لو احتجتها كـ URL فرعي)
 @app.route('/oils')
 def oils_page():
     conn = get_db_connection()
@@ -50,13 +67,11 @@ def oils_page():
     conn.close()
     return render_template('Oils.html', oils=oils)
 
-# لوحة تحكم الأدمن (بدون أي تأثير على جداول قطع الغيار أو السيارات القديمة)
+# لوحة تحكم الأدمن
 @app.route('/admin')
 def admin_dashboard():
     conn = get_db_connection()
     init_db()
-    
-    # جلب المنتجات القديمة لو وجدت بأمان تام
     try:
         products = conn.execute('SELECT * FROM products').fetchall()
     except:
@@ -66,7 +81,7 @@ def admin_dashboard():
     conn.close()
     return render_template('Admin-Dashboard.html', products=products, oils=oils)
 
-# معالجة إضافة زيت جديد من لوحة التحكم وحفظه في الداتا بيز
+# معالجة إضافة زيت جديد من لوحة التحكم
 @app.route('/add_oil', methods=['POST'])
 def add_oil():
     product_name = request.form.get('product_name')
@@ -90,6 +105,11 @@ def add_oil():
     conn.close()
     
     return redirect(url_for('admin_dashboard'))
+
+# مسار حفظ الشراء الوهمي لتجنب أخطاء المتصفح
+@app.route('/save-purchase', methods=['POST'])
+def save_purchase():
+    return jsonify({'status': 'success'})
 
 # صفحة بوليصة الشراء وتأكيد الطلب
 @app.route('/order-confirmation')
