@@ -225,7 +225,7 @@
                             </div>
                             <button class="buy-btn" onclick="buyProduct({{ product.ProductID }}, {{ product.Price }})">شراء الآن</button>
                         </div>
-                    endfor %}
+                    {% endfor %}
                 {% else %}
                     <div class="no-products">
                         <p>عذراً، لا توجد قطع غيار متاحة حالياً.</p>
@@ -234,7 +234,7 @@
             </div>
         </div>
 
-        <!-- قسم زيوت المحركات (يظهر فقط عند الضغط على زر الزيوت) -->
+        <!-- قسم زيوت المحركات -->
         <div id="section-oils" class="tab-section" style="display: none;">
             <div class="products-grid">
                 {% if oils %}
@@ -257,7 +257,7 @@
                             </div>
                             <button class="buy-btn" onclick="buyProduct({{ oil.id }}, {{ oil.Price }})">شراء الزيت</button>
                         </div>
-                    endfor %}
+                    {% endfor %}
                 {% else %}
                     <div class="no-products">
                         <p>عذراً، لا توجد زيوت مضافة حالياً.</p>
@@ -269,7 +269,6 @@
     </div>
 
     <script>
-        // التبديل البرمجي بين الأقسام
         function switchTab(tabName) {
             const secProducts = document.getElementById('section-products');
             const secOils = document.getElementById('section-oils');
