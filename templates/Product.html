@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>قطع الغيار المتاحة - متجر قطع الغيار</title>
+    <title>المتجر - قطع الغيار والزيوت</title>
     <style>
         :root {
             --bg-color: #f4f7f6;
@@ -36,7 +36,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background-color 0.3s ease;
         }
         .navbar h1 {
             margin: 0;
@@ -67,8 +66,33 @@
         .header-title {
             text-align: center;
             color: var(--text-color);
+            margin-bottom: 20px;
+        }
+        
+        /* أزرار التبديل بين الأقسام (قطع الغيار والزيوت) */
+        .category-switcher {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
             margin-bottom: 30px;
         }
+        .switch-btn {
+            background-color: #e0e0e0;
+            color: #333;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .switch-btn.active {
+            background-color: #007bff;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,123,255,0.3);
+        }
+
         .products-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -100,6 +124,15 @@
             color: var(--desc-color);
             font-size: 14px;
             margin: 5px 0;
+        }
+        .car-badge {
+            display: inline-block;
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-bottom: 8px;
         }
         .price {
             color: #28a745;
@@ -149,7 +182,7 @@
     <button id="theme-toggle" onclick="toggleTheme()">🌓 الوضع الليلي</button>
 
     <div class="navbar">
-        <h1>متجر قطع الغيار - عروض القطع</h1>
+        <h1>متجر قطع الغيار والزيوت</h1>
         <div class="nav-buttons">
             <a href="/select-car" class="back-btn">اختيار سيارة أخرى</a>
         </div>
@@ -158,42 +191,104 @@
     <div class="container">
         <h2 class="header-title">
             {% if car_model %}
-                قطع الغيار المتوفرة لسيارة: {{ car_model }} (سنة {{ car_year }})
+                المنتجات المتوفرة لسيارة: {{ car_model }} (سنة {{ car_year }})
             {% else %}
-                جميع قطع الغيار المتوفرة
+                معرض المنتجات الشامل
             {% endif %}
         </h2>
 
-        <div class="products-grid">
-            {% if products %}
-                {% for product in products %}
-                    <div class="product-card">
-                        <div>
-                            {% if product.Image %}
-                                <img src="{{ url_for('static', filename='uploads/' + product.Image) }}" alt="{{ product.ProductName }}">
-                            {% else %}
-                                <img src="{{ url_for('static', filename='uploads/default.png') }}" alt="صورة افتراضية">
-                            {% endif %}
-                            <div class="product-info">
-                                <h3>{{ product.ProductName }}</h3>
-                                <p>{{ product.Description }}</p>
-                                <p><strong>السيارة:</strong> {{ product.ModelName }} ({{ product.Year }})</p>
-                                <p><strong>المخزون المتاح:</strong> {{ product.Stock }} قطعة</p>
-                                <div class="price">{{ product.Price }} جنية</div>
-                            </div>
-                        </div>
-                        <button class="buy-btn" onclick="buyProduct({{ product.ProductID }}, {{ product.Price }})">شراء الآن</button>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <div class="no-products">
-                    <p>عذراً، لا توجد قطع غيار متاحة لهذه السيارة حالياً.</p>
-                </div>
-            {% endif %}
+        <!-- أزرار التبديل الفورية بين قطع الغيار والزيوت -->
+        <div class="category-switcher">
+            <button id="btn-products" class="switch-btn active" onclick="switchTab('products')">🚗 قطع الغيار</button>
+            <button id="btn-oils" class="switch-btn" onclick="switchTab('oils')">🛢️ زيوت المحركات</button>
         </div>
+
+        <!-- قسم قطع الغيار -->
+        <div id="section-products" class="tab-section">
+            <div class="products-grid">
+                {% if products %}
+                    {% for product in products %}
+                        <div class="product-card">
+                            <div>
+                                {% if product.Image %}
+                                    <img src="{{ url_for('static', filename='uploads/' + product.Image) }}" alt="{{ product.ProductName }}">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='uploads/default.png') }}" alt="صورة افتراضية">
+                                {% endif %}
+                                <div class="product-info">
+                                    <h3>{{ product.ProductName }}</h3>
+                                    <p>{{ product.Description }}</p>
+                                    <p><strong>السيارة:</strong> {{ product.ModelName }} ({{ product.Year }})</p>
+                                    <p><strong>المخزون المتاح:</strong> {{ product.Stock }} قطعة</p>
+                                    <div class="price">{{ product.Price }} جنية</div>
+                                </div>
+                            </div>
+                            <button class="buy-btn" onclick="buyProduct({{ product.ProductID }}, {{ product.Price }})">شراء الآن</button>
+                        </div>
+                    endfor %}
+                {% else %}
+                    <div class="no-products">
+                        <p>عذراً، لا توجد قطع غيار متاحة حالياً.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- قسم زيوت المحركات (يظهر فقط عند الضغط على زر الزيوت) -->
+        <div id="section-oils" class="tab-section" style="display: none;">
+            <div class="products-grid">
+                {% if oils %}
+                    {% for oil in oils %}
+                        <div class="product-card">
+                            <div>
+                                {% if oil.Image %}
+                                    <img src="{{ url_for('static', filename='uploads/' + oil.Image) }}" alt="{{ oil.ProductName }}">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='uploads/default.png') }}" alt="صورة افتراضية">
+                                {% endif %}
+                                <div class="product-info">
+                                    <h3>{{ oil.ProductName }}</h3>
+                                    <p>{{ oil.Description }}</p>
+                                    {% if oil.CarModel %}
+                                        <div class="car-badge">🚗 مناسب لـ: {{ oil.CarModel }}</div>
+                                    {% endif %}
+                                    <div class="price">{{ oil.Price }} جنية</div>
+                                </div>
+                            </div>
+                            <button class="buy-btn" onclick="buyProduct({{ oil.id }}, {{ oil.Price }})">شراء الزيت</button>
+                        </div>
+                    endfor %}
+                {% else %}
+                    <div class="no-products">
+                        <p>عذراً، لا توجد زيوت مضافة حالياً.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
     </div>
 
     <script>
+        // التبديل البرمجي بين الأقسام
+        function switchTab(tabName) {
+            const secProducts = document.getElementById('section-products');
+            const secOils = document.getElementById('section-oils');
+            const btnProducts = document.getElementById('btn-products');
+            const btnOils = document.getElementById('btn-oils');
+
+            if (tabName === 'products') {
+                secProducts.style.display = 'block';
+                secOils.style.display = 'none';
+                btnProducts.classList.add('active');
+                btnOils.classList.remove('active');
+            } else {
+                secProducts.style.display = 'none';
+                secOils.style.display = 'block';
+                btnOils.classList.add('active');
+                btnProducts.classList.remove('active');
+            }
+        }
+
         const savedTheme = localStorage.getItem('theme') || 'light';
         if (savedTheme === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
@@ -215,7 +310,7 @@
         }
 
         function buyProduct(productId, price) {
-            if (confirm("هل أنت متأكد من رغبتك في إتمام عملية الشراء لهذه القطعة؟")) {
+            if (confirm("هل أنت متأكد من رغبتك في إتمام عملية الشراء؟")) {
                 fetch('/save-purchase', {
                     method: 'POST',
                     headers: {
