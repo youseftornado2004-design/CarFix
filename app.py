@@ -98,12 +98,12 @@ def login_page():
         identifier = request.form.get('identifier', '').strip()
         password = request.form.get('password', '').strip()
         
-        # 1. التحقق إذا كان المستخدم هو الأدمن (يمكنك تعديل بيانات الأدمن حسب رغبتك)
+        # 1. التحقق إذا كان المستخدم هو الأدمن
         if (identifier == "admin@carfix.com" or identifier == "01000000000") and password == "admin123":
             session['is_admin'] = True
             return redirect(url_for('admin_dashboard'))
         
-        # 2. التحقق من جدول العملاء في الداتا بيز (بالإيميل أو رقم الهاتف مع كلمة المرور)
+        # 2. التحقق من جدول العملاء في الداتا بيز
         conn = get_db_connection()
         customer = conn.execute(
             'SELECT * FROM customers WHERE (email = ? OR phone = ?) AND password = ?',
@@ -147,8 +147,9 @@ def add_car():
 @app.route('/products')
 def products_page():
     conn = get_db_connection()
-    products = conn.execute('SELECT * FROM products').fetchall()
-    oils = conn.execute('SELECT * FROM oils').fetchall()
+    # جلب المنتجات والزيوت التي لها مخزون أكبر من صفر فقط لتختفي تماماً عند نفاد الكمية
+    products = conn.execute('SELECT * FROM products WHERE Stock > 0').fetchall()
+    oils = conn.execute('SELECT * FROM oils WHERE Stock > 0').fetchall()
     conn.close()
     
     car_model = session.get('car_model')
@@ -179,7 +180,7 @@ def register_page():
                 ''', (first_name, last_name, email, password, phone, day, month, year, gender))
                 conn.commit()
                 conn.close()
-                return redirect(url_for('login_page')) # بعد التسجيل يروح لصفحة اللوجن مباشرة لتسجيل الدخول
+                return redirect(url_for('login_page'))
             except sqlite3.IntegrityError:
                 return render_template('Register.html', error="البريد الإلكتروني مسجل من قبل!")
                 
@@ -200,7 +201,7 @@ def support_page():
             return redirect(url_for('select_car_page'))
     return render_template('Support.html')
 
-# لوحة تحكم الأدمن (محمية ببيانات الأدمن)
+# لوحة تحكم الأدمن
 @app.route('/admin')
 def admin_dashboard():
     if not session.get('is_admin'):
@@ -272,7 +273,29 @@ def reply_complaint(id):
 
 @app.route('/save-purchase', methods=['POST'])
 def save_purchase():
-    return jsonify({'status': 'success'})
+    data = request.get_json()
+    items = data.get('items', [])
+    
+    conn = get_db_connection()
+    try:
+        for item in items:
+            item_id = str(item.get('id'))
+            qty = int(item.get('quantity', 1))
+            
+            # التحقق إذا كان المنتج زيت أم قطعة غيار عادية وتحديث المخزون
+            if item_id.startswith('oil_'):
+                real_id = item_id.replace('oil_', '')
+                conn.execute('UPDATE oils SET Stock = Stock - ? WHERE id = ? AND Stock >= ?', (qty, real_id, qty))
+            else:
+                conn.execute('UPDATE products SET Stock = Stock - ? WHERE ProductID = ? AND Stock >= ?', (qty, item_id, qty))
+                
+        conn.commit()
+        conn.close()
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        return jsonify({'status': 'error', 'message': str(e)})
 
 @app.route('/order-confirmation')
 def order_confirmation():
