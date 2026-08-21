@@ -3,28 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>اختيار السيارة - متجر قطع الغيار</title>
+    <title>اختر سيارتك - CarFix</title>
     <style>
         :root {
-            --bg-color: #f4f7f6;
-            --container-bg: #ffffff;
-            --text-color: #333333;
-            --label-color: #555555;
-            --input-bg: #ffffff;
-            --input-border: #ccc;
-            --input-text: #333333;
-            --navbar-bg: #333;
-        }
-
-        [data-theme="dark"] {
             --bg-color: #121212;
-            --container-bg: #1e1e1e;
+            --card-bg: #1e1e1e;
             --text-color: #f1f1f1;
-            --label-color: #cccccc;
-            --input-bg: #2a2a2a;
-            --input-border: #444;
-            --input-text: #ffffff;
-            --navbar-bg: #1a1a1a;
+            --accent-color: #007bff;
         }
 
         body {
@@ -33,248 +18,118 @@
             color: var(--text-color);
             margin: 0;
             padding: 0;
-            min-height: 100vh;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            height: 100vh;
         }
-        .modal-content {
-            background: var(--container-bg);
-            color: var(--text-color);
-            padding: 25px;
-            border-radius: 10px;
-            width: 400px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+
+        .container {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 25px;
+            color: var(--accent-color);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
             text-align: right;
         }
-        .modal-content textarea {
-            width: 100%;
-            height: 100px;
-            padding: 10px;
-            border: 1px solid var(--input-border);
-            background-color: var(--input-bg);
-            color: var(--input-text);
-            border-radius: 5px;
-            box-sizing: border-box;
-            margin-bottom: 15px;
-            resize: none;
-        }
-        .navbar {
-            background-color: var(--navbar-bg);
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background-color 0.3s ease;
-        }
-        .navbar h1 {
-            margin: 0;
-            font-size: 20px;
-        }
-        .nav-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        .support-btn {
-            background-color: #ff9800;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .support-btn:hover {
-            background-color: #e68a00;
-        }
-        .logout-btn {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            text-decoration: none;
-        }
-        .logout-btn:hover {
-            background-color: #c82333;
-        }
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 80vh;
-        }
-        .car-box {
-            background: var(--container-bg);
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            width: 400px;
-            transition: background-color 0.3s ease;
-        }
-        h2 {
-            text-align: center;
-            color: var(--text-color);
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
+
         label {
-            display: block;
-            margin-bottom: 5px;
-            color: var(--label-color);
             font-weight: bold;
+            font-size: 15px;
         }
+
         select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--input-border);
-            background-color: var(--input-bg);
-            color: var(--input-text);
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-        button[type="submit"] {
-            width: 100%;
             padding: 12px;
-            background-color: #007bff;
-            border: none;
-            border-radius: 5px;
+            border: 1px solid #444;
+            border-radius: 6px;
+            font-size: 15px;
+            background-color: #2a2a2a;
             color: white;
+        }
+
+        button[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 6px;
             font-size: 16px;
-            cursor: pointer;
             font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
             margin-top: 10px;
         }
+
         button[type="submit"]:hover {
-            background-color: #0056b3;
+            background-color: #218838;
         }
-        #car-alert {
-            display: none;
-            background-color: #ffc107;
-            color: #333;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-            margin-bottom: 15px;
-            font-weight: bold;
-            border: 1px solid #e0a800;
+
+        .admin-link {
+            margin-top: 20px;
+            display: block;
+            color: #17a2b8;
+            text-decoration: none;
+            font-size: 14px;
         }
-        #theme-toggle {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 1000;
-            padding: 10px 15px;
-            border-radius: 50px;
-            border: none;
-            background: #007bff;
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            font-weight: bold;
+
+        .admin-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
-    <button id="theme-toggle" onclick="toggleTheme()">🌓 الوضع الليلي</button>
-
-    <div class="navbar">
-        <h1>متجر قطع الغيار</h1>
-        <div class="nav-buttons">
-            <button class="support-btn" onclick="openSupportModal()">مركز الدعم والشكاوى</button>
-            <a href="/logout" class="logout-btn">تسجيل الخروج</a>
-        </div>
-    </div>
-
     <div class="container">
-        <div class="car-box">
-            <h2>اختر سيارتك وسنة الصنع</h2>
+        <h2>اختر سيارتك وسنة الصنع</h2>
+        
+        <form action="/add_car" method="POST">
+            <label for="car-select">اختر الموديل والسنة:</label>
+            <select name="car_model" id="car-select" required>
+                <option value="" disabled selected>-- اختر السيارة المتاحة --</option>
+                {% if cars %}
+                    {% for car in cars %}
+                        <option value="{{ car.car_model }}" data-year="{{ car.car_year }}">
+                            {{ car.car_model }} - سنة {{ car.car_year }}
+                        </option>
+                    {% endfor %}
+                {% else %}
+                    <option value="" disabled>لا توجد سيارات مضافة حالياً من لوحة الأدمن</option>
+                {% endif %}
+            </select>
+
+            <!-- حقل مخفي يرسل السنة بوضوح للسيرفر والسيشن -->
+            <input type="hidden" name="car_year" id="car-year-hidden" value="">
             
-            <div id="car-alert"></div>
+            <button type="submit">انتقال لعرض قطع الغيار والزيوت</button>
+        </form>
 
-            <form action="/product" method="GET" onsubmit="return validateCarSelection(event)">
-                <div class="form-group">
-                    <label>اختر السيارة (الموديل وسنة الصنع):</label>
-                    <select id="carID" name="CarID" required>
-                        <option value="">-- اختر السيارة المتاحة --</option>
-                        {% for car in cars %}
-                            <option value="{{ car.CarID }}">{{ car.ModelName }} - سنة {{ car.Year }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <button type="submit">الانتقال لعرض قطع الغيار</button>
-            </form>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="supportModal">
-        <div class="modal-content">
-            <h3>مركز الدعم والشكاوى</h3>
-            <form action="/submit-complaint" method="POST">
-                <textarea name="message" placeholder="اكتب شكواك أو استفسارك هنا..." required></textarea>
-                <button type="submit" style="background-color: #28a745; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; margin-bottom: 5px;">إرسال الشكوى</button>
-                <button type="button" onclick="closeSupportModal()" style="background-color: #ccc; color: #333; border: none; padding: 8px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer;">إلغاء</button>
-            </form>
-        </div>
+        <a href="/admin" class="admin-link">الانتقال إلى لوحة تحكم الأدمن</a>
     </div>
 
     <script>
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        if (savedTheme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            document.getElementById('theme-toggle').textContent = '☀️ الوضع الفاتح';
-        }
+        // كود بسيط لربط سنة الصنع بالحقل المخفي أوتوماتيكياً عند اختيار السيارة
+        const selectElement = document.getElementById('car-select');
+        const yearHiddenInput = document.getElementById('car-year-hidden');
 
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const btn = document.getElementById('theme-toggle');
-            if (currentTheme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'light');
-                localStorage.setItem('theme', 'light');
-                btn.textContent = '🌓 الوضع الليلي';
-            } else {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
-                btn.textContent = '☀️ الوضع الفاتح';
-            }
-        }
-
-        function validateCarSelection(event) {
-            const carID = document.getElementById('carID').value;
-            const alertBox = document.getElementById('car-alert');
-
-            if (!carID) {
-                event.preventDefault();
-                alertBox.innerText = "يرجى اختيار السيارة وسنة الصنع!";
-                alertBox.style.display = 'block';
-                return false;
-            }
-            alertBox.style.display = 'none';
-            return true;
-        }
-
-        function openSupportModal() {
-            document.getElementById('supportModal').style.display = 'flex';
-        }
-
-        function closeSupportModal() {
-            document.getElementById('supportModal').style.display = 'none';
-        }
+        selectElement.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const carYear = selectedOption.getAttribute('data-year');
+            yearHiddenInput.value = carYear || '';
+        });
     </script>
 </body>
 </html>
