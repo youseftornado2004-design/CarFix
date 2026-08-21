@@ -11,143 +11,49 @@
             --text-color: #333333;
             --navbar-bg: #1e1e1e;
         }
-
         [data-theme="dark"] {
             --bg-color: #121212;
             --card-bg: #1e1e1e;
             --text-color: #f1f1f1;
             --navbar-bg: #1a1a1a;
         }
-
         body {
             font-family: Tahoma, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
-
         .navbar {
             background-color: var(--navbar-bg);
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            color: white; padding: 15px 30px;
+            display: flex; justify-content: space-between; align-items: center;
         }
-
-        .navbar h1 {
-            margin: 0;
-            font-size: 20px;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 15px;
-        }
-
+        .navbar h1 { margin: 0; font-size: 20px; }
+        .nav-links { display: flex; gap: 15px; }
         .nav-links a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 15px;
-            background-color: #007bff;
-            border-radius: 5px;
-            font-weight: bold;
+            color: white; text-decoration: none; padding: 8px 15px;
+            background-color: #007bff; border-radius: 5px; font-weight: bold;
         }
-
-        .nav-links a:hover {
-            background-color: #0056b3;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
         .admin-section {
-            background: var(--card-bg);
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            padding: 25px;
-            margin-bottom: 30px;
+            background: var(--card-bg); border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); padding: 25px; margin-bottom: 30px;
         }
-
-        .admin-section h2 {
-            margin-top: 0;
-            color: #007bff;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        label {
-            font-weight: bold;
-            font-size: 14px;
-        }
-
+        .admin-section h2 { margin-top: 0; color: #007bff; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        form { display: flex; flex-direction: column; gap: 15px; }
+        label { font-weight: bold; font-size: 14px; }
         input, textarea, select {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 14px;
-            background-color: var(--card-bg);
-            color: var(--text-color);
+            padding: 10px; border: 1px solid #ccc; border-radius: 5px;
+            font-size: 14px; background-color: var(--card-bg); color: var(--text-color);
         }
-
         button[type="submit"] {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s;
+            background-color: #28a745; color: white; border: none;
+            padding: 12px; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer;
         }
-
-        button[type="submit"]:hover {
-            background-color: #218838;
-        }
-
-        .list-group {
-            margin-top: 15px;
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 10px;
-        }
-
-        .list-item {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-        }
-
-        #theme-toggle {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 1000;
-            padding: 10px 15px;
-            border-radius: 50px;
-            border: none;
-            background: #007bff;
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            font-weight: bold;
-        }
+        .list-group { margin-top: 15px; max-height: 220px; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px; padding: 10px; }
+        .list-item { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; font-size: 14px; align-items: center; }
+        #theme-toggle { position: fixed; bottom: 20px; left: 20px; z-index: 1000; padding: 10px 15px; border-radius: 50px; border: none; background: #007bff; color: white; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -164,78 +70,112 @@
 
     <div class="container">
 
-        <!-- القسم الأول: إضافة موديل سيارة وسنة صنع جديدة -->
+        <!-- القسم 1: إضافة سيارة وسنة صنع -->
         <div class="admin-section">
             <h2>إضافة موديل سيارة وسنة صنع جديدة</h2>
             <form action="/admin_add_car" method="POST">
                 <label>اسم / موديل السيارة:</label>
                 <input type="text" name="car_model" placeholder="مثال: Toyota" required>
-                
                 <label>سنة الصنع المتاحة:</label>
                 <input type="text" name="car_year" placeholder="مثال: 2024" required>
-                
-                <button type="submit">حفظ وإضافة السيارة للداتابيز</button>
+                <button type="submit">حفظ وإضافة السيارة</button>
             </form>
-
-            <h3 style="margin-top: 20px; font-size: 16px;">السيارات المضافة حالياً في النظام:</h3>
-            <div class="list-group">
-                {% if cars %}
-                    {% for car in cars %}
-                        <div class="list-item">
-                            <span>🚗 <strong>{{ car.car_model }}</strong></span>
-                            <span>سنة: {{ car.car_year }}</span>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div style="text-align: center; color: #777; padding: 10px;">لا توجد سيارات مضافة حتى الآن.</div>
-                {% endif %}
-            </div>
         </div>
 
-        <!-- القسم الثاني: إضافة قطعة غيار جديدة (تتخزن في جدول Products) -->
+        <!-- القسم 2: إضافة قطعة غيار -->
         <div class="admin-section">
             <h2>إضافة قطعة غيار جديدة للمتجر</h2>
             <form action="/add_product" method="POST" enctype="multipart/form-data">
                 <label>اسم قطعة الغيار:</label>
-                <input type="text" name="product_name" placeholder="مثال: flash light" required>
-                
+                <input type="text" name="product_name" required>
                 <label>الوصف والتفاصيل:</label>
-                <textarea name="description" rows="3" placeholder="أدخل تفاصيل قطعة الغيار..." required></textarea>
-                
+                <textarea name="description" rows="3" required></textarea>
                 <label>السعر (جنيه):</label>
-                <input type="number" step="0.01" name="price" placeholder="مثال: 450" required>
-                
+                <input type="number" step="0.01" name="price" required>
+                <label>الكمية المتاحة (Stock):</label>
+                <input type="number" name="stock" value="10" required>
                 <label>السيارة المخصصة:</label>
-                <input type="text" name="car_id" placeholder="مثال: toyota" required>
-                
+                <input type="text" name="car_id" required>
                 <label>صورة قطعة الغيار:</label>
                 <input type="file" name="image" accept="image/*">
-                
-                <button type="submit">حفظ قطعة الغيار في الداتابيز</button>
+                <button type="submit">حفظ قطعة الغيار</button>
             </form>
         </div>
 
-        <!-- القسم الثالث: إضافة زيت محرك جديد (يتخزن في جدول Oils) -->
+        <!-- القسم 3: إضافة زيت محرك (مع الكمية) -->
         <div class="admin-section">
             <h2>إضافة زيت محرك جديد للمتجر</h2>
             <form action="/add_oil" method="POST" enctype="multipart/form-data">
                 <label>اسم الزيت:</label>
-                <input type="text" name="product_name" placeholder="مثال: زيت تويوتا الأصلي" required>
-                
+                <input type="text" name="product_name" required>
                 <label>الوصف والتفاصيل:</label>
-                <textarea name="description" rows="3" placeholder="أدخل تفاصيل الزيت..." required></textarea>
-                
+                <textarea name="description" rows="3" required></textarea>
                 <label>السعر (جنيه):</label>
-                <input type="number" step="0.01" name="price" placeholder="مثال: 350" required>
-                
+                <input type="number" step="0.01" name="price" required>
+                <label>الكمية المتاحة (Stock):</label>
+                <input type="number" name="stock" value="10" required>
                 <label>السيارة المخصصة (اختياري):</label>
-                <input type="text" name="car_model" placeholder="مثال: toyota أو عام">
-                
+                <input type="text" name="car_model" placeholder="مثال: تويوتا أو عام">
                 <label>صورة الزيت:</label>
                 <input type="file" name="image" accept="image/*">
-                
                 <button type="submit">حفظ الزيت في الداتابيز</button>
             </form>
+        </div>
+
+        <!-- القسم 4: العملاء المسجلون حديثاً -->
+        <div class="admin-section">
+            <h2>العملاء المسجلون حديثاً في الموقع</h2>
+            <div class="list-group">
+                {% if customers %}
+                    {% for cust in customers %}
+                        <div class="list-item">
+                            <span>👤 <strong>{{ cust.name }}</strong> (البريد: {{ cust.email }} - التليفون: {{ cust.phone }})</span>
+                            <span style="color: #007bff;">تاريخ التسجيل: {{ cust.join_date }}</span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; color: #777; padding: 10px;">لا توجد تسجيلمت جديدة حتى الآن.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- القسم 5: إجمالي المشتريات -->
+        <div class="admin-section">
+            <h2>إجمالي المشتريات والعملاء</h2>
+            <div class="list-group">
+                {% if customers %}
+                    {% for cust in customers %}
+                        <div class="list-item">
+                            <span>🛒 العميل: <strong>{{ cust.name }}</strong> | البريد: {{ cust.email }} | الهاتف: {{ cust.phone }}</span>
+                            <span style="color: #28a745; font-weight: bold;">الإجمالي: {{ cust.total_spent }} جنيه</span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; color: #777; padding: 10px;">لا توجد عمليات شراء مسجلة حتى الآن.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- القسم 6: شكاوى ودعم العملاء (مع مكان للرد) -->
+        <div class="admin-section">
+            <h2>مركز دعم وشكاوى العملاء</h2>
+            <div class="list-group" style="max-height: none;">
+                {% if complaints %}
+                    {% for comp in complaints %}
+                        <div style="border-bottom: 1px solid #444; padding: 12px; margin-bottom: 10px; background: rgba(0,0,0,0.02); border-radius: 6px;">
+                            <p style="margin: 0 0 5px 0;"><strong>الاسم:</strong> {{ comp.name }} | <strong>البريد:</strong> {{ comp.email }}</p>
+                            <p style="margin: 0 0 10px 0; color: #d9534f;"><strong>الشكوى:</strong> {{ comp.message }}</p>
+                            <p style="margin: 0 0 5px 0; font-size: 13px;"><strong>الرد الحالي:</strong> {{ comp.reply if comp.reply else 'لم يتم الرد بعد' }}</p>
+                            <form action="/reply_complaint/{{ comp.id }}" method="POST" style="display: flex; gap: 10px; margin-top: 8px;">
+                                <input type="text" name="reply" placeholder="اكتب رد الأدمن هنا..." required style="flex: 1; padding: 8px;">
+                                <button type="submit" style="padding: 8px 15px; background: #007bff; color: #fff; border: none; border-radius: 5px; font-size: 14px;">إرسال الرد</button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; color: #777; padding: 10px;">لا توجد شكاوى مسجلة حالياً.</div>
+                {% endif %}
+            </div>
         </div>
 
     </div>
@@ -246,7 +186,6 @@
             document.documentElement.setAttribute('data-theme', 'dark');
             document.getElementById('theme-toggle').textContent = '☀️ الوضع الفاتح';
         }
-
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const btn = document.getElementById('theme-toggle');
