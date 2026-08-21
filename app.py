@@ -282,7 +282,7 @@ def save_purchase():
             item_id = str(item.get('id'))
             qty = int(item.get('quantity', 1))
             
-            # التحقق إذا كان المنتج زيت أم قطعة غيار عادية وتحديث المخزون
+            # التحقق الدقيق وخصم المخزون للزيوت وقطع الغيار
             if item_id.startswith('oil_'):
                 real_id = item_id.replace('oil_', '')
                 conn.execute('UPDATE oils SET Stock = Stock - ? WHERE id = ? AND Stock >= ?', (qty, real_id, qty))
