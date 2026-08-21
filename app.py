@@ -13,19 +13,16 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-# دالة إعادة إنشاء وتحديث الجداول بأمان تام بدون أخطاء
 def init_db():
     conn = get_db_connection()
-    # لو الجدول القديم فيه مشكلة في الأعمدة، بنحذفه وننشئه بالهيكل السليم
-    conn.execute('DROP TABLE IF EXISTS cars')
+    # جدول السيارات
     conn.execute('''
-        CREATE TABLE cars (
+        CREATE TABLE IF NOT EXISTS cars (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             car_model TEXT,
             car_year TEXT
         )
     ''')
-    
     # جدول الزيوت
     conn.execute('''
         CREATE TABLE IF NOT EXISTS oils (
@@ -37,6 +34,18 @@ def init_db():
             Image TEXT
         )
     ''')
+    # جدول قطع الغيار (مفصول تماماً عن الزيوت)
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS products (
+            ProductID INTEGER PRIMARY KEY AUTOINCREMENT,
+            ProductName TEXT,
+            Price REAL,
+            CarID TEXT,
+            Description TEXT,
+            Image TEXT,
+            Stock INTEGER
+        )
+    ''')
     conn.commit()
     conn.close()
 
@@ -46,47 +55,38 @@ init_db()
 def home():
     return redirect(url_for('select_car_page'))
 
-# صفحة اختيار السيارة
+# صفحة اختيار السيارة (تقرأ بوضوح من جدول الـ cars)
 @app.route('/select-car')
 def select_car_page():
     conn = get_db_connection()
-    try:
-        cars = conn.execute('SELECT * FROM cars').fetchall()
-    except:
-        cars = []
+    cars = conn.execute('SELECT * FROM cars').fetchall()
     conn.close()
     return render_template('Select-Car.html', cars=cars)
 
-# مسار إضافة سيارة جديدة من لوحة تحكم الأدمن
+# مسار إضافة سيارة من الأدمن
 @app.route('/admin_add_car', methods=['POST'])
 def admin_add_car():
     car_model = request.form.get('car_model')
     car_year = request.form.get('car_year')
-    
     if car_model and car_year:
         conn = get_db_connection()
         conn.execute('INSERT INTO cars (car_model, car_year) VALUES (?, ?)', (car_model, car_year))
         conn.commit()
         conn.close()
-        
     return redirect(url_for('admin_dashboard'))
 
-# مسار اختيار العميل لعربيته
+# اختيار العميل لعربيته
 @app.route('/add_car', methods=['POST'])
 def add_car():
     session['car_model'] = request.form.get('car_model')
     session['car_year'] = request.form.get('car_year')
     return redirect(url_for('products_page'))
 
-# صفحة المنتجات والزيوت
+# صفحة المنتجات (تعرض قطع الغيار والزيوت بشكل منفصل ومضبوط)
 @app.route('/products')
 def products_page():
     conn = get_db_connection()
-    try:
-        products = conn.execute('SELECT * FROM products').fetchall()
-    except:
-        products = []
-        
+    products = conn.execute('SELECT * FROM products').fetchall()
     oils = conn.execute('SELECT * FROM oils').fetchall()
     conn.close()
     
@@ -99,17 +99,13 @@ def products_page():
 @app.route('/admin')
 def admin_dashboard():
     conn = get_db_connection()
-    try:
-        products = conn.execute('SELECT * FROM products').fetchall()
-    except:
-        products = []
-        
+    products = conn.execute('SELECT * FROM products').fetchall()
     oils = conn.execute('SELECT * FROM oils').fetchall()
     cars = conn.execute('SELECT * FROM cars').fetchall()
     conn.close()
     return render_template('Admin-Dashboard.html', products=products, oils=oils, cars=cars)
 
-# إضافة زيت جديد
+# مسار إضافة زيت جديد
 @app.route('/add_oil', methods=['POST'])
 def add_oil():
     product_name = request.form.get('product_name')
@@ -130,7 +126,29 @@ def add_oil():
     ''', (product_name, description, price, car_model, image_filename))
     conn.commit()
     conn.close()
+    return redirect(url_for('admin_dashboard'))
+
+# مسار إضافة قطعة غيار جديدة (منفصلة تماماً عن الزيوت وبتسجل في جدول Products)
+@app.route('/add_product', methods=['POST'])
+def add_product():
+    product_name = request.form.get('product_name')
+    description = request.form.get('description')
+    price = request.form.get('price')
+    car_id = request.form.get('car_id')
     
+    image_file = request.files.get('image')
+    image_filename = None
+    if image_file and image_file.filename != '':
+        image_filename = image_file.filename
+        image_file.save(os.path.join(UPLOAD_FOLDER, image_filename))
+    
+    conn = get_db_connection()
+    conn.execute('''
+        INSERT INTO products (ProductName, Description, Price, CarID, Image, Stock)
+        VALUES (?, ?, ?, ?, ?, 10)
+    ''', (product_name, description, price, car_id, image_filename))
+    conn.commit()
+    conn.close()
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/save-purchase', methods=['POST'])
