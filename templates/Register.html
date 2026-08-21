@@ -7,26 +7,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إنشاء حساب - متجر قطع الغيار</title>
     <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --container-bg: #ffffff;
+            --text-color: #333333;
+            --label-color: #555555;
+            --input-bg: #ffffff;
+            --input-border: #ccc;
+            --input-text: #333333;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --container-bg: #1e1e1e;
+            --text-color: #f1f1f1;
+            --label-color: #cccccc;
+            --input-bg: #2a2a2a;
+            --input-border: #444;
+            --input-text: #ffffff;
+        }
+
         body {
             font-family: Tahoma, sans-serif;
-            background-color: #f4f7f6;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
             padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         .form-container {
-            background: white;
+            background: var(--container-bg);
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             width: 450px;
+            transition: background-color 0.3s ease;
         }
         h2 {
             text-align: center;
-            color: #333;
+            color: var(--text-color);
             margin-bottom: 20px;
         }
         .form-group {
@@ -35,14 +58,16 @@
         label {
             display: block;
             margin-bottom: 5px;
-            color: #555;
+            color: var(--label-color);
             font-weight: bold;
             font-size: 14px;
         }
         input, select {
             width: 100%;
             padding: 9px;
-            border: 1px solid #ccc;
+            border: 1px solid var(--input-border);
+            background-color: var(--input-bg);
+            color: var(--input-text);
             border-radius: 5px;
             box-sizing: border-box;
         }
@@ -81,17 +106,33 @@
             color: #d8000c;
             border: 1px solid #f5c6cb;
         }
+        /* زرار التبديل الثابت */
+        #theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            padding: 10px 15px;
+            border-radius: 50px;
+            border: none;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
+    <!-- زر الدارك / لايت مود الثابت -->
+    <button id="theme-toggle" onclick="toggleTheme()">🌓 الوضع الليلي</button>
+
     <div class="form-container">
         <h2>إنشاء حساب جديد</h2>
         
-        <!-- تنبيه الأخطاء من الجافاسكريبت -->
         <div id="alert-box" style="display: none;">يرجى ملء جميع الحقول المطلوبة بدقة!</div>
 
-        <!-- تنبيه الإيرور القادم من السيرفر (لو الإيميل مكرر) -->
         {% if error %}
             <div class="server-error">{{ error }}</div>
         {% endif %}
@@ -170,6 +211,27 @@
     </div>
 
     <script>
+        // كود تشغيل وحفظ الثيم
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-toggle').textContent = '☀️ الوضع الفاتح';
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const btn = document.getElementById('theme-toggle');
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+                btn.textContent = '🌓 الوضع الليلي';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                btn.textContent = '☀️ الوضع الفاتح';
+            }
+        }
+
         function validateRegisterForm(event) {
             const firstName = document.getElementById('firstName').value.trim();
             const lastName = document.getElementById('lastName').value.trim();
