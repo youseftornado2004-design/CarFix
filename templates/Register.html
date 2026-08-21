@@ -1,30 +1,26 @@
-<meta name="google-site-verification" content="uNnjjl8fAb4LnQsWDUJYTI-y3sv_kLdzQWJsIg0XC6Q" />
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إنشاء حساب - متجر قطع الغيار</title>
+    <title>إنشاء حساب جديد - CarFix</title>
     <style>
         :root {
-            --bg-color: #f4f7f6;
-            --container-bg: #ffffff;
-            --text-color: #333333;
-            --label-color: #555555;
-            --input-bg: #ffffff;
-            --input-border: #ccc;
-            --input-text: #333333;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #f1f1f1;
+            --input-bg: #2a2a2a;
+            --border-color: #444;
+            --accent-color: #007bff;
         }
 
-        [data-theme="dark"] {
-            --bg-color: #121212;
-            --container-bg: #1e1e1e;
-            --text-color: #f1f1f1;
-            --label-color: #cccccc;
-            --input-bg: #2a2a2a;
-            --input-border: #444;
-            --input-text: #ffffff;
+        [data-theme="light"] {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --input-bg: #f9f9f9;
+            --border-color: #ccc;
+            --accent-color: #007bff;
         }
 
         body {
@@ -32,226 +28,221 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
-        .form-container {
-            background: var(--container-bg);
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            width: 450px;
-            transition: background-color 0.3s ease;
-        }
-        h2 {
-            text-align: center;
-            color: var(--text-color);
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 12px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: var(--label-color);
-            font-weight: bold;
-            font-size: 14px;
-        }
-        input, select {
-            width: 100%;
-            padding: 9px;
-            border: 1px solid var(--input-border);
-            background-color: var(--input-bg);
-            color: var(--input-text);
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-        .birth-date-group {
-            display: flex;
-            gap: 10px;
-        }
-        button[type="submit"] {
-            width: 100%;
-            padding: 12px;
-            background-color: #28a745;
-            border: none;
-            border-radius: 5px;
+
+        /* الستارة الذكية للتنبيهات من أعلى */
+        #alert-banner {
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #dc3545;
             color: white;
-            font-size: 16px;
-            cursor: pointer;
+            padding: 12px 25px;
+            border-radius: 0 0 8px 8px;
             font-weight: bold;
-            margin-top: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: top 0.4s ease-in-out;
+            z-index: 1000;
         }
-        button[type="submit"]:hover {
-            background-color: #218838;
+        #alert-banner.show {
+            top: 0;
         }
-        #alert-box, .server-error {
-            background-color: #ffc107;
-            color: #333;
+
+        .box {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            margin: 20px;
+        }
+
+        h2 { color: var(--accent-color); text-align: center; margin-bottom: 20px; }
+
+        form { display: flex; flex-direction: column; gap: 12px; }
+
+        .row { display: flex; gap: 10px; }
+        .row > div { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+
+        label { font-size: 13px; font-weight: bold; }
+
+        input, select {
             padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-            margin-bottom: 15px;
-            font-weight: bold;
-            border: 1px solid #e0a800;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 6px;
             font-size: 14px;
         }
-        .server-error {
-            background-color: #ffdddd;
-            color: #d8000c;
-            border: 1px solid #f5c6cb;
+
+        .date-selects { display: flex; gap: 5px; }
+        .date-selects select { flex: 1; }
+
+        button[type="submit"] {
+            background: #28a745;
+            color: #fff;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background 0.2s;
         }
-        /* زرار التبديل الثابت */
+        button[type="submit"]:hover { background: #218838; }
+
+        .login-link { color: #17a2b8; text-decoration: none; text-align: center; display: block; margin-top: 15px; font-size: 14px; }
+        
         #theme-toggle {
             position: fixed;
             bottom: 20px;
             left: 20px;
-            z-index: 1000;
             padding: 10px 15px;
             border-radius: 50px;
             border: none;
-            background: #007bff;
+            background: var(--accent-color);
             color: white;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            z-index: 1001;
         }
     </style>
 </head>
-<body>
+<body data-theme="dark">
 
-    <!-- زر الدارك / لايت مود الثابت -->
-    <button id="theme-toggle" onclick="toggleTheme()">🌓 الوضع الليلي</button>
+    <button id="theme-toggle" onclick="toggleTheme()">☀️ الوضع الفاتح</button>
 
-    <div class="form-container">
-        <h2>إنشاء حساب جديد</h2>
-        
-        <div id="alert-box" style="display: none;">يرجى ملء جميع الحقول المطلوبة بدقة!</div>
+    <!-- الستارة الذكية للتنبيه -->
+    <div id="alert-banner">برجاء ملء جميع الخانات الإجبارية بشكل صحيح!</div>
 
-        {% if error %}
-            <div class="server-error">{{ error }}</div>
-        {% endif %}
-
-        <form action="/register" method="POST" onsubmit="return validateRegisterForm(event)">
-            <div class="form-group">
-                <label>الاسم الأول:</label>
-                <input type="text" id="firstName" name="FirstName" required>
-            </div>
+    <div class="box">
+        <h2>انشاء حساب جديد</h2>
+        <form id="reg-form" action="/register" method="POST" onsubmit="return validateForm(event)">
             
-            <div class="form-group">
-                <label>اسم العائلة:</label>
-                <input type="text" id="lastName" name="LastName" required>
-            </div>
-
-            <div class="form-group">
-                <label>تاريخ الميلاد:</label>
-                <div class="birth-date-group">
-                    <select id="birthDay" required>
-                        <option value="">اليوم</option>
-                        <script>
-                            for(let i=1; i<=31; i++) document.write(`<option value="${i}">${i}</option>`);
-                        </script>
-                    </select>
-                    <select id="birthMonth" required>
-                        <option value="">الشهر</option>
-                        <option value="1">يناير</option>
-                        <option value="2">فبراير</option>
-                        <option value="3">مارس</option>
-                        <option value="4">أبريل</option>
-                        <option value="5">مايو</option>
-                        <option value="6">يونيو</option>
-                        <option value="7">يوليو</option>
-                        <option value="8">أغسطس</option>
-                        <option value="9">سبتمبر</option>
-                        <option value="10">أكتوبر</option>
-                        <option value="11">نوفمبر</option>
-                        <option value="12">ديسمبر</option>
-                    </select>
-                    <select id="birthYear" required>
-                        <option value="">السنة</option>
-                        <script>
-                            for(let i=2026; i>=1950; i--) document.write(`<option value="${i}">${i}</option>`);
-                        </script>
-                    </select>
-                    <input type="hidden" id="BirthDate" name="BirthDate">
+            <div class="row">
+                <div>
+                    <label>الاسم الأول:</label>
+                    <input type="text" name="first_name" required oninput="hideAlert()">
+                </div>
+                <div>
+                    <label>اسم العيلة:</label>
+                    <input type="text" name="last_name" required oninput="hideAlert()">
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>الجنس:</label>
-                <select id="gender" name="Gender" required>
-                    <option value="">-- اختر الجنس --</option>
-                    <option value="Male">ذكر</option>
-                    <option value="Female">أنثى</option>
+            <label>البريد الإلكتروني:</label>
+            <input type="email" name="email" required oninput="hideAlert()">
+
+            <label>كلمة المرور:</label>
+            <input type="password" name="password" required oninput="hideAlert()">
+
+            <label>رقم الهاتف:</label>
+            <input type="text" name="phone" required oninput="hideAlert()">
+
+            <label>تاريخ الميلاد:</label>
+            <div class="date-selects">
+                <select name="birth_day" id="day-select" required onchange="hideAlert()">
+                    <option value="" disabled selected>اليوم</option>
+                </select>
+                <select name="birth_month" id="month-select" required onchange="hideAlert()">
+                    <option value="" disabled selected>الشهر</option>
+                    <option value="يناير">يناير</option>
+                    <option value="فبراير">فبراير</option>
+                    <option value="مارس">مارس</option>
+                    <option value="أبريل">أبريل</option>
+                    <option value="مايو">مايو</option>
+                    <option value="يونيو">يونيو</option>
+                    <option value="يوليو">يوليو</option>
+                    <option value="أغسطس">أغسطس</option>
+                    <option value="سبتمبر">سبتمبر</option>
+                    <option value="أكتوبر">أكتوبر</option>
+                    <option value="نوفمبر">نوفمبر</option>
+                    <option value="ديسمبر">ديسمبر</option>
+                </select>
+                <select name="birth_year" id="year-select" required onchange="hideAlert()">
+                    <option value="" disabled selected>السنة</option>
                 </select>
             </div>
 
-            <div class="form-group">
-                <label>رقم الهاتف:</label>
-                <input type="tel" id="phone" name="Phone" required>
-            </div>
+            <label>الجنس:</label>
+            <select name="gender" required onchange="hideAlert()">
+                <option value="" disabled selected>اختر الجنس</option>
+                <option value="ذكر">ذكر</option>
+                <option value="أنثى">أنثى</option>
+            </select>
 
-            <div class="form-group">
-                <label>البريد الإلكتروني:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-
-            <div class="form-group">
-                <label>كلمة المرور:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-
-            <button type="submit">تأكيد إنشاء الحساب</button>
+            <button type="submit">تسجيل الحساب</button>
         </form>
+        <a href="/select-car" class="login-link">العودة لصفحة اختيار السيارة</a>
     </div>
 
     <script>
-        // كود تشغيل وحفظ الثيم
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        if (savedTheme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            document.getElementById('theme-toggle').textContent = '☀️ الوضع الفاتح';
+        // تعبئة أيام الشهر من 1 إلى 31
+        const daySelect = document.getElementById('day-select');
+        for (let i = 1; i <= 31; i++) {
+            let opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = i;
+            daySelect.appendChild(opt);
         }
 
+        // تعبئة سنوات الميلاد من 1900 لحد 2026
+        const yearSelect = document.getElementById('year-select');
+        for (let y = 2026; y >= 1900; y--) {
+            let opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = y;
+            yearSelect.appendChild(opt);
+        }
+
+        // إظهار الستارة الذكية للتنبيه
+        function showAlert(msg) {
+            const banner = document.getElementById('alert-banner');
+            banner.textContent = msg;
+            banner.classList.add('show');
+        }
+
+        // إخفاء الستارة أول ما المستخدم يبدأ يكتب أو يعدل
+        function hideAlert() {
+            const banner = document.getElementById('alert-banner');
+            banner.classList.remove('show');
+        }
+
+        // التحقق قبل الإرسال
+        function validateForm(event) {
+            const form = document.getElementById('reg-form');
+            const inputs = form.querySelectorAll('input, select');
+            for (let input of inputs) {
+                if (!input.value.trim()) {
+                    event.preventDefault();
+                    showAlert('برجاء ملء جميع الخانات الإجبارية قبل المتابعة!');
+                    input.focus();
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // تبديل الوضع الليلي والفاتح
         function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const body = document.body;
             const btn = document.getElementById('theme-toggle');
-            if (currentTheme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'light');
-                localStorage.setItem('theme', 'light');
-                btn.textContent = '🌓 الوضع الليلي';
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.setAttribute('data-theme', 'light');
+                btn.textContent = '🌙 الوضع الليلي';
             } else {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
+                body.setAttribute('data-theme', 'dark');
                 btn.textContent = '☀️ الوضع الفاتح';
             }
-        }
-
-        function validateRegisterForm(event) {
-            const firstName = document.getElementById('firstName').value.trim();
-            const lastName = document.getElementById('lastName').value.trim();
-            const day = document.getElementById('birthDay').value;
-            const month = document.getElementById('birthMonth').value;
-            const year = document.getElementById('birthYear').value;
-            const gender = document.getElementById('gender').value;
-            const phone = document.getElementById('phone').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const alertBox = document.getElementById('alert-box');
-
-            if (!firstName || !lastName || !day || !month || !year || !gender || !phone || !email || !password) {
-                event.preventDefault();
-                alertBox.style.display = 'block';
-                return false;
-            }
-
-            document.getElementById('BirthDate').value = `${year}-${month}-${day}`;
-            return true;
         }
     </script>
 </body>
