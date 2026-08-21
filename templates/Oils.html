@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarFix - قسم زيوت السيارات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Cairo', sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h2 {
+            text-align: center;
+            color: #1e293b;
+            margin-bottom: 30px;
+        }
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .product-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .product-card img {
+            max-width: 100%;
+            height: 150px;
+            object-fit: contain;
+            margin-bottom: 15px;
+        }
+        .product-card h3 {
+            font-size: 18px;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        .product-card p {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .car-badge {
+            display: inline-block;
+            background-color: #e2e8f0;
+            color: #334155;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+        .price {
+            font-weight: bold;
+            color: #0d6efd;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        .btn {
+            background-color: #0d6efd;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover {
+            background-color: #0b5ed7;
+        }
+        .back-link {
+            display: block;
+            margin-bottom: 20px;
+            color: #64748b;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="{{ url_for('select_car_page') }}" class="back-link">← العودة للرئيسية / اختيار السيارة</a>
+    <h2>🛢️ قسم زيوت المحركات والمضخات</h2>
+
+    <div class="products-grid">
+        {% if oils %}
+            {% for oil in oils %}
+            <div class="product-card">
+                {% if oil.Image %}
+                    <img src="{{ url_for('static', filename='uploads/' + oil.Image) }}" alt="{{ oil.ProductName }}">
+                {% else %}
+                    <img src="https://via.placeholder.com/150?text=Oil" alt="Default Oil">
+                {% endif %}
+                <h3>{{ oil.ProductName }}</h3>
+                <p>{{ oil.Description }}</p>
+                
+                <!-- حانة عرض السيارة التابعة أو الموديل المتوافق -->
+                {% if oil.CarModel %}
+                    <div class="car-badge">🚗 مناسب لـ: {{ oil.CarModel }}</div>
+                {% endif %}
+
+                <div class="price">{{ oil.Price }} ج.م</div>
+                <a href="#" class="btn">أضف للسلة</a>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align: center; grid-column: 1 / -1; color: #888;">لا توجد زيوت مضافة حالياً في الوقت الحالي.</p>
+        {% endif %}
+    </div>
+</div>
+
+</body>
+</html>
