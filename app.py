@@ -14,7 +14,7 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-# دالة التأكد من إنشاء جدول الزيوت أوتوماتيكياً
+# دالة التأكد من إنشاء جدول الزيوت أوتوماتيكياً بأمان تام
 def init_db():
     conn = get_db_connection()
     conn.execute('''
@@ -40,6 +40,18 @@ def home():
 def select_car_page():
     return render_template('Select-Car.html')
 
+# مسار استقبال وتخزين اختيار السيارة وتحويل العميل لصفحة المنتجات والزيوت
+@app.route('/add_car', methods=['POST'])
+def add_car():
+    car_model = request.form.get('car_model') or request.form.get('model_name') or request.form.get('car_name')
+    car_year = request.form.get('car_year') or request.form.get('year')
+    
+    # حفظ اختيار السيارة في الجلسة (Session) لتظهر في واجهة المنتجات
+    session['car_model'] = car_model
+    session['car_year'] = car_year
+    
+    return redirect(url_for('products_page'))
+
 # دمج جلب قطع الغيار والزيوت معاً في صفحة المنتجات لتعمل بأزرار التبديل
 @app.route('/products')
 def products_page():
@@ -52,13 +64,16 @@ def products_page():
     except:
         products = []
         
-    # جلب الزيوت
+    # جلب الزيوت المضافة من لوحة التحكم
     oils = conn.execute('SELECT * FROM oils').fetchall()
     conn.close()
     
-    return render_template('products.html', products=products, oils=oils)
+    car_model = session.get('car_model')
+    car_year = session.get('car_year')
+    
+    return render_template('products.html', products=products, oils=oils, car_model=car_model, car_year=car_year)
 
-# صفحة عرض الزيوت المستقلة (لو احتجتها كـ URL فرعي)
+# صفحة عرض الزيوت المستقلة (لو احتجتها)
 @app.route('/oils')
 def oils_page():
     conn = get_db_connection()
